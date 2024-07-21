@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using static AssetStudio.BundleFile;
 using static AssetStudio.Crypto;
+using SevenZip;
 
 namespace AssetStudio
 {
@@ -1062,41 +1063,156 @@ namespace AssetStudio
         {
             Logger.Verbose($"Attempting to decrypt file {reader.FileName} with Love And Deepspace encryption");
 
-            var vector = new byte[] { 0x35, 0x6B, 0x05, 0x00 };
-            var originalHeader = new byte[] { 0x55, 0x6E, 0x69, 0x74, 0x79, 0x46, 0x53, 0x00, 0x00, 0x00, 0x00, 0x07, 0x35, 0x2E, 0x78, 0x2E };
-
-            var seed = reader.ReadBytes(0x10);
-            for (int i = 0; i < seed.Length; i++)
+            var signatureBytes = reader.ReadBytes(8);
+            var signature = Encoding.UTF8.GetString(signatureBytes[..7]);
+            if (signature != "UnityFS")
             {
-                var b = (byte)(seed[i] ^ originalHeader[i] ^ vector[0]);
-                seed[i] = b != originalHeader[i] ? b : originalHeader[i];
-            }
+                Logger.Verbose("signature UnityFS not found, trying new format");
+                reader.Position = 0;
 
-            var key = new byte[0x40];
-            for (int i = 0; i < vector.Length; i++)
-            {
-                for (int j = 0; j < seed.Length; j++)
+                reader.Endian = EndianType.LittleEndian;
+                var headerSize = reader.ReadUInt32();
+                reader.Endian = EndianType.BigEndian;
+
+                if (headerSize < reader.Length)
                 {
-                    var offset = i * 0x10;
-                    key[offset + j] = (byte)(seed[j] ^ vector[i]);
+                    var header = new Header()
+                    {
+                        signature = reader.ReadStringToNull(),
+                        version = reader.ReadUInt32(),
+                        unityVersion = reader.ReadStringToNull(),
+                        unityRevision = reader.ReadStringToNull(),
+                        size = reader.ReadInt64(),
+                        compressedBlocksInfoSize = reader.ReadUInt32(),
+                        uncompressedBlocksInfoSize = reader.ReadUInt32(),
+                        flags = (ArchiveFlags)reader.ReadUInt32(),
+                    };
+
+                    if (headerSize > header.compressedBlocksInfoSize && header.signature == "PapesFS")
+                    {
+                        if (IsFixedPath(reader.FullPath, out var relPath))
+                        {
+                            var crc = CRC.CalculateDigestUTF8(relPath);
+
+                            var seed = new byte[] { 0x61, 0xC5, 0x0D, 0x00 };
+                            var hash = CalculateHash(crc);
+                            var key = ExpandKey(hash, seed);
+
+                            var blocksInfoPos = (int)(headerSize - header.compressedBlocksInfoSize);
+                            reader.Position = blocksInfoPos;
+                            var blocksInfo = reader.ReadBytes((int)(header.compressedBlocksInfoSize));
+                            for (int i = 0; i < blocksInfo.Length; i++)
+                            {
+                                blocksInfo[i] ^= key[i % key.Length];
+                            }
+
+                            Logger.Verbose("Decrypted Love And Deepspace file successfully !!");
+
+                            MemoryStream ms = new();
+                            ms.Write(Encoding.UTF8.GetBytes("UnityFS\x0"));
+                            reader.Position = 4 + signature.Length + 1;
+                            ms.Write(reader.ReadBytes((int)(blocksInfoPos - reader.Position)));
+                            ms.Write(blocksInfo);
+                            reader.Position = headerSize;
+                            ms.Write(reader.ReadBytes((int)reader.Remaining));
+                            ms.Position = 0;
+                            return new FileReader(reader.FullPath, ms);
+                        }
+                    }
                 }
+
+                reader.Position = 0;
             }
 
-            reader.Position = 0;
-            var data = reader.ReadBytes((int)reader.Remaining);
-            for (int i = 0; i < data.Length; i++)
+            if (IsFixedPath(reader.FullPath, out var relativePath))
             {
-                data[i] ^= key[i % key.Length];
+                var crc = CRC.CalculateDigestUTF8(relativePath);
+
+                var seed = new byte[] { 0x35, 0x6B, 0x05, 0x00 };
+                var hash = CalculateHash(crc);
+                var key = ExpandKey(hash, seed);
+
+                var data = reader.ReadBytes((int)reader.Remaining);
+                for (int i = 0; i < data.Length; i++)
+                {
+                    data[i] ^= key[i % key.Length];
+                }
+
+                Logger.Verbose("Decrypted Love And Deepspace file successfully !!");
+
+                MemoryStream ms = new();
+                ms.Write(data);
+                ms.Position = 0;
+                return new FileReader(reader.FullPath, ms);
             }
 
-            Logger.Verbose("Decrypted Love And Deepspace file successfully !!");
+            Logger.Verbose("File doesn't match with game's relative path");
+            reader.Position = 0;
+            return reader;
 
-            MemoryStream ms = new();
-            ms.Write(data);
-            ms.Position = 0;
-            return new FileReader(reader.FullPath, ms);
+            static bool IsFixedPath(string path, out string fixedPath)
+            {
+                const string baseFolder = "bundles";
+
+                Logger.Verbose($"Fixing path before checking...");
+                var dirs = path.Split(Path.DirectorySeparatorChar);
+                if (dirs.Contains(baseFolder))
+                {
+                    var idx = Array.IndexOf(dirs, baseFolder);
+                    Logger.Verbose($"Seperator found at index {idx}");
+                    fixedPath = string.Join(Path.DirectorySeparatorChar, dirs[(idx + 1)..]).Replace("\\", "/");
+                    return true;
+                }
+                Logger.Verbose($"Unknown path");
+                fixedPath = string.Empty;
+                return false;
+            }
+
+            static byte[] CalculateHash(uint seed)
+            {
+                uint value = seed;
+                var hash = new byte[0x10];
+                for (int i = 0; i < 0x10; i++)
+                {
+                    var b = (byte)(value % 0xA);
+                    if (i % 2 == 0)
+                    {
+                        b += 0x61;
+                    }
+                    else
+                    {
+                        b |= 0x30;
+                    }
+
+                    hash[i] = b;
+
+                    if (value < 0xA)
+                    {
+                        value = seed;
+                        continue;
+                    }
+
+                    value /= 0xA;
+                }
+
+                return hash;
+            }
+
+            static byte[] ExpandKey(byte[] hash, byte[] seed)
+            {
+                var key = new byte[0x40];
+                for (int i = 0; i < seed.Length; i++)
+                {
+                    for (int j = 0; j < hash.Length; j++)
+                    {
+                        var offset = i * 0x10;
+                        key[offset + j] = (byte)(hash[j] ^ seed[i]);
+                    }
+                }
+
+                return key;
+            }
         }
-
         public static FileReader DecryptSchoolGirlStrikers(FileReader reader)
         {
             Logger.Verbose($"Attempting to decrypt file {reader.FileName} with School Girl Strikers encryption");
