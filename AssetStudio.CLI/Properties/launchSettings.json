@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AssetStudio.CLI": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\Users\\ASUS\\Downloads\\StarRail_2.2.0\\StarRail_Data\\StreamingAssets\\Asb\\Windows\" test_duplciate_item_name_bug --game SR --map_op AssetMap --types GameObject --logger_flags verbose --map_name \"test_main_nochange\""
+    }
+  }
+}

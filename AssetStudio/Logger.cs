@@ -14,6 +14,7 @@ namespace AssetStudio
         public static ILogger File;
 
         public static bool Silent { get; set; }
+        public static bool enableVerbose { get; set; } = false;
         public static LoggerEvent Flags { get; set; }
 
         public static bool FileLogging
