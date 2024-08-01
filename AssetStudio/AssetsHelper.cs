@@ -717,6 +717,8 @@ namespace AssetStudio
         public static async Task BuildBoth(string[] files, string mapName, string baseFolder, Game game, string savePath, ExportListType exportListType, ClassIDType[] typeFilters = null, Regex[] nameFilters = null, Regex[] containerFilters = null)
         {
             Logger.Info($"Building Both...");
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             CABMap.Clear();
             Progress.Reset();
             var collision = 0;
@@ -734,6 +736,11 @@ namespace AssetStudio
 
             Logger.Info($"Map build successfully !! {collision} collisions found");
             await ExportAssetsMap(assets, game, mapName, savePath, exportListType);
+            stopwatch.Stop();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Logger.Info($"BuildBoth {mapName} completed in {stopwatch.Elapsed.TotalSeconds} seconds.");
+            Console.ResetColor();
+
         }
     }
 }
