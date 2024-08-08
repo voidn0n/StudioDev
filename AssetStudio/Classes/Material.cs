@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.IO;
 
 namespace AssetStudio
 {
@@ -104,13 +105,12 @@ namespace AssetStudio
                 //var m_DoubleSidedGI = a_Stream.ReadBoolean(); //2017 and up
                 reader.AlignStream();
             }
-
             if (version[0] > 4 || (version[0] == 4 && version[1] >= 3)) //4.3 and up
             {
                 var m_CustomRenderQueue = reader.ReadInt32();
             }
 
-            if (reader.Game.Type.IsLoveAndDeepspace())
+            if (reader.Game.Type.IsLoveAndDeepspace() || (reader.Game.Type.IsShiningNikki() && version[0] >= 2019))
             {
                 var m_MaterialType = reader.ReadUInt32();
             }

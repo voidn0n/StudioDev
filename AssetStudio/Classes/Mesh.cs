@@ -344,6 +344,7 @@ namespace AssetStudio
         public List<MeshBlendShape> shapes;
         public List<MeshBlendShapeChannel> channels;
         public float[] fullWeights;
+        public static bool HasVarintVertices(SerializedType type) => type.Match("70AE601CDF0C273E745D9EC1333426A4");
 
         public BlendShapeData(ObjectReader reader)
         {
@@ -406,6 +407,11 @@ namespace AssetStudio
                             shape.firstVertex /= stride;
                         }
                     }
+                }
+                if (reader.Game.Type.IsShiningNikki() && version[0] >=2019)
+                {
+                   var varintVertices = reader.ReadUInt8Array();
+
                 }
             }
             else
@@ -503,7 +509,7 @@ namespace AssetStudio
         private bool m_CollisionMeshBaked = false;
 
         public static bool HasVertexColorSkinning(SerializedType type) => type.Match("413A501B79022BF2DF389A82002FC81F");
-
+      
         public List<uint> m_Indices = new List<uint>();
 
         public Mesh(ObjectReader reader) : base(reader)
