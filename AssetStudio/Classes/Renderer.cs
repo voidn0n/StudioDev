@@ -237,6 +237,10 @@ namespace AssetStudio
                 if (reader.Game.Type.IsSR())
                 {
                     var RenderFlag = reader.ReadUInt32();
+                    if (reader.serializedType.Match("3086DE02B7269C6DE7E840C57C244649"))
+                    {
+                        var m_StreamingMipmapBias = reader.ReadFloat();
+                    }
                     reader.AlignStream();
                 }
             }
