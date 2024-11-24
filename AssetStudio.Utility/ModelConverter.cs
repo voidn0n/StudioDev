@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 
@@ -428,13 +429,40 @@ namespace AssetStudio
 
             if (meshR is SkinnedMeshRenderer sMesh)
             {
-                //Bone
-                /*
-                 * 0 - None
-                 * 1 - m_Bones
-                 * 2 - m_BoneNameHashes
-                 */
-                var boneType = 0;
+                meshR.m_GameObject.TryGet(out GameObject test);
+                var NN4GO = test.m_Components.Find(x => x.Name == "NN4SkinnedMeshRendererData");
+                if (NN4GO != null)
+                {
+                  
+                    if (NN4GO.TryGet(out MonoBehaviour NN4SkinnedMeshRendererData))
+                    { 
+                        Console.WriteLine(NN4SkinnedMeshRendererData.m_PathID);
+                        var obj = NN4SkinnedMeshRendererData.ToType();
+                        var bones = obj["Bones"] as List<object>;
+                        var transforms = meshR.assetsFile.ObjectsDic
+                            .Where(kvp => kvp.Value.type == ClassIDType.Transform);
+                            for (int i = 0; i < bones.Count; i++)
+                        {   var NN4Bone = (string)bones[i];
+                            var transform = transforms
+                            .Select(kvp => kvp.Value as AssetStudio.Transform) 
+                            .FirstOrDefault(obj => obj.m_GameObject.Name.Contains(NN4Bone));
+                            if (transform != null)
+                            {
+                                Logger.Debug($"Found transform with name: {NN4Bone}");
+                                sMesh.m_Bones[i].Set(transform);
+                            }
+
+                        }
+
+                    }               
+                }
+                    //Bone
+                    /*
+                     * 0 - None
+                     * 1 - m_Bones
+                     * 2 - m_BoneNameHashes
+                     */
+                    var boneType = 0;
                 if (sMesh.m_Bones.Count > 0)
                 {
                     if (sMesh.m_Bones.Count == mesh.m_BindPose.Length)
