@@ -320,6 +320,9 @@ namespace AssetStudio
                 reader.AlignStream();
             }
         }
+        public MeshBlendShape()
+        {
+        }
     }
 
     public class MeshBlendShapeChannel
@@ -335,6 +338,9 @@ namespace AssetStudio
             nameHash = reader.ReadUInt32();
             frameIndex = reader.ReadInt32();
             frameCount = reader.ReadInt32();
+        }
+        public MeshBlendShapeChannel()
+        {
         }
     }
 

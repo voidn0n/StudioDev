@@ -90,9 +90,10 @@ namespace AssetStudio
         {
             if (!Flags.HasFlag(LoggerEvent.Error) || Silent)
                 return;
-
+            Console.ForegroundColor = ConsoleColor.Red;
             if (FileLogging) File.Log(LoggerEvent.Error, message);
             Default.Log(LoggerEvent.Error, message);
+            Console.ResetColor();
         }
 
         public static void Error(string message, Exception e)

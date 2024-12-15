@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
-
+using System.Collections;
+using System.IO;
 namespace AssetStudio
 {
     public class ModelConverter : IImported
@@ -152,10 +153,301 @@ namespace AssetStudio
             ConvertMeshRenderer(m_Transform);
         }
 
+        public class GakuBlendShape
+        {
+            public string BlendShapeName { get; set; }
+            public List<GakuBlendShapeVertex> Vertices { get; set; }
+
+            public GakuBlendShape(string name)
+            {
+                BlendShapeName = name;
+                Vertices = new List<GakuBlendShapeVertex>();
+            }
+        }
+
+        public class GakuBlendShapeVertex
+        {
+            public int VertIndex { get; set; }
+            public Vector3 Position { get; set; }
+
+            public GakuBlendShapeVertex(int vertIndex, Vector3 position)
+            {
+                VertIndex = vertIndex;
+                Position = position;
+            }
+        }
+        public class VLSkinningRenderer
+        {
+            public List<PPtr<Transform>> Bones { get; set; }
+            public List<Matrix4x4> Bindposes { get; set; }
+            public AABB LocalBounds { get; set; }
+            public List<uint> BoneWeightAndIndices { get; set; }
+            public List<GakuBlendShape> BlendShapesList { get; set; }
+            public List<float> blendShapeWeightsList { get; set; }
+            public static VLSkinningRenderer Instance { get; private set; } = new VLSkinningRenderer();
+            public VLSkinningRenderer()
+            {
+                Bones = new List<PPtr<Transform>>();
+                Bindposes = new List<Matrix4x4>();
+                BoneWeightAndIndices = new List<uint>();
+                BlendShapesList = new List<GakuBlendShape>();
+                blendShapeWeightsList = new List<float>();
+            }
+        }
         private void ConvertMeshRenderer(Transform m_Transform)
         {
             m_Transform.m_GameObject.TryGet(out var m_GameObject);
+            if (m_GameObject.m_Components.Find(x => x.Name == "VLActorFaceModel") != null || m_GameObject.Name == "VLSkinningRenderer")
+            {
+                var vlskinningRenderer = new VLSkinningRenderer();
+                var vlskin = m_GameObject.assetsFile.ObjectsDic.FirstOrDefault(x => x.Value.Name == "VLSkinningRenderer").Value as GameObject;
 
+                if (vlskin != null)
+                {
+
+                    PPtr<Mesh> ptrMesh = null;
+                    var VLActorFaceModel = m_GameObject.assetsFile.ObjectsDic.FirstOrDefault(x => x.Value.Name == "VLActorFaceModel" && x.Value.type == ClassIDType.MonoBehaviour).Value as MonoBehaviour;
+                    if (VLActorFaceModel == null)
+                    {
+                        Logger.Error($"VLActorFaceModel not found for {m_GameObject.Name} @ {m_GameObject.m_PathID}");
+                    }
+                    if (VLActorFaceModel != null)
+                    {
+                        Console.WriteLine(VLActorFaceModel.m_PathID);
+                        var obj = VLActorFaceModel.ToType();
+                        var tmp = obj["bones"] as List<object>;
+                        if (tmp != null)
+                        {
+
+                            foreach (OrderedDictionary bone in tmp.OfType<OrderedDictionary>())
+                            {
+                                var fileID = Convert.ToInt32(bone["m_FileID"] ?? 0);
+                                var pathID = Convert.ToInt64(bone["m_PathID"] ?? 0);
+
+                                vlskinningRenderer.Bones.Add(new PPtr<Transform>(fileID, pathID, m_GameObject.assetsFile));
+                            }
+
+                        }
+                        tmp = obj["bindposes"] as List<object>;
+                        if (tmp != null)
+                        {
+                            var bindposesList = new List<Matrix4x4>();
+
+                            foreach (OrderedDictionary dictionary in tmp.OfType<OrderedDictionary>())
+                            {
+                                var matrixValues = new float[16];
+                                var values = dictionary.Values.Cast<float>().ToArray();
+                                if (values.Length == 16)
+                                {
+                                    matrixValues = values;
+                                }
+                                else
+                                {
+                                    Array.Fill(matrixValues, 0f);
+                                }
+
+                                var matrix = new Matrix4x4(values);
+                                bindposesList.Add(matrix);
+
+                            }
+                            vlskinningRenderer.Bindposes = bindposesList;
+                            Console.WriteLine("KMS");
+                        }
+                        var tmp1 = obj["localBounds"] as OrderedDictionary;
+                        if (tmp1 != null)
+                        {
+                            AABB localBounds = null;
+                            var m_Center = tmp1["m_Center"] as OrderedDictionary;
+                            var m_Extent = tmp1["m_Extent"] as OrderedDictionary;
+
+                            if (m_Center != null && m_Extent != null)
+                            {
+                                var centerX = Convert.ToSingle(m_Center["x"]);
+                                var centerY = Convert.ToSingle(m_Center["y"]);
+                                var centerZ = Convert.ToSingle(m_Center["z"]);
+                                var extentX = Convert.ToSingle(m_Extent["x"]);
+                                var extentY = Convert.ToSingle(m_Extent["y"]);
+                                var extentZ = Convert.ToSingle(m_Extent["z"]);
+
+                                Vector3 center = new Vector3(centerX, centerY, centerZ);
+                                Vector3 extent = new Vector3(extentX, extentY, extentZ);
+                                localBounds = new AABB(center, extent);
+                            }
+
+                            if (localBounds != null)
+                            {
+                                vlskinningRenderer.LocalBounds = localBounds;
+                            }
+                        }
+                        tmp = obj["boneWeightAndIndices"] as List<object>;
+                        if (tmp != null)
+                        {
+                            var boneWeightAndIndices = new List<uint>();
+
+                            foreach (var bone in tmp)
+                            {
+                                boneWeightAndIndices.Add(Convert.ToUInt32(bone));
+
+                            }
+
+                            vlskinningRenderer.BoneWeightAndIndices = boneWeightAndIndices;
+                        }
+                        tmp = obj["blendShapes"] as List<object>;
+                        if (tmp != null)
+                        {
+                            var blendShapesList = new List<GakuBlendShape>();
+                            foreach (OrderedDictionary blendShapeDataDict in tmp.OfType<OrderedDictionary>())
+                            {
+
+                                var blendShapeName = blendShapeDataDict["blendShapeName"] as string;
+                                var blendShape = new GakuBlendShape(blendShapeName);
+
+                                var blendShapeVerticesList = blendShapeDataDict["blendShapeVertices"] as List<object>;
+
+                                if (blendShapeVerticesList != null)
+                                {
+                                    foreach (OrderedDictionary vertexData in blendShapeVerticesList.OfType<OrderedDictionary>())
+                                    {
+                                        int vertIndex = Convert.ToInt32(vertexData["vertIndex"]);
+
+                                        var positionDict = vertexData["position"] as OrderedDictionary;
+                                        if (positionDict != null)
+                                        {
+                                            float x = Convert.ToSingle(positionDict["x"]);
+                                            float y = Convert.ToSingle(positionDict["y"]);
+                                            float z = Convert.ToSingle(positionDict["z"]);
+
+                                            Vector3 position = new Vector3(x, y, z);
+                                            var vertex = new GakuBlendShapeVertex(vertIndex, position);
+                                            blendShape.Vertices.Add(vertex);
+                                        }
+                                    }
+                                }
+                                blendShapesList.Add(blendShape);
+                            }
+                            vlskinningRenderer.BlendShapesList = blendShapesList;
+                        }
+                        tmp1 = obj["blendShapeWeights"] as OrderedDictionary;
+                        if (tmp1 != null)
+                        {
+                            var blendShapeWeightsList = new List<float>();
+
+                            foreach (DictionaryEntry entry in tmp1)
+                            {
+
+                                if (entry.Value is OrderedDictionary weightData)
+                                {
+                                    for (int i = 0; i <= 15; i++)
+                                    {
+                                        var key = "w" + i;
+                                        if (weightData.Contains(key))
+                                        {
+                                            try
+                                            {
+                                                blendShapeWeightsList.Add(Convert.ToSingle(weightData[key]));
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                Console.WriteLine($"Error converting value for key {key}: {ex.Message}");
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                            vlskinningRenderer.blendShapeWeightsList = blendShapeWeightsList;
+
+                        }
+                        tmp1 = obj["mesh"] as OrderedDictionary;
+                        if (tmp1 != null)
+                        {
+
+                            var m_FileID = Convert.ToInt32(tmp1["m_FileID"]);
+                            var m_PathID = Convert.ToInt64(tmp1["m_PathID"]);
+                            var mptr = new PPtr<Mesh>(m_FileID, m_PathID, m_GameObject.assetsFile);
+                            if (mptr != null)
+                            {
+                                ptrMesh = mptr;
+                            }
+                        }
+
+                    }
+
+                    if (m_GameObject.Name == "VLSkinningRenderer")
+                    {
+                        if (ptrMesh != null)
+                        {
+                            m_GameObject.m_MeshFilter.m_Mesh = ptrMesh;
+                        }
+                    }
+                    else
+                    {
+                        var origin = vlskin.reader.Position;
+                        var vlRenderer = new SkinnedMeshRenderer(vlskin.m_MeshRenderer.reader);
+                        vlskin.reader.Position = origin;
+                        vlRenderer.m_AABB = vlskinningRenderer.LocalBounds;
+                        vlRenderer.m_Bones = vlskinningRenderer.Bones;
+                        vlRenderer.m_BlendShapeWeights = vlskinningRenderer.blendShapeWeightsList.ToArray();
+                        vlRenderer.m_Mesh = vlskin.m_MeshFilter.m_Mesh;
+                        m_GameObject.m_SkinnedMeshRenderer = vlRenderer;
+                        m_GameObject.m_MeshFilter = vlskin.m_MeshFilter;
+                        m_GameObject.m_SkinnedMeshRenderer.m_Mesh = ptrMesh;
+                        vlskin.m_MeshFilter.m_Mesh = ptrMesh;
+                        var mesh = GetMesh(m_GameObject.m_SkinnedMeshRenderer);
+                        mesh.m_BindPose = vlskinningRenderer.Bindposes.ToArray();
+                        m_GameObject.m_MeshRenderer = vlskin.m_MeshRenderer;
+                        m_GameObject.m_MeshFilter = vlskin.m_MeshFilter;
+                        var meshBlendShapeList = new List<MeshBlendShape>();
+                        var blendShapeVertexList = new List<BlendShapeVertex>();
+                        var shapeChanneList = new List<MeshBlendShapeChannel>();
+                        var index = 0;
+                        var firstVertex = 0;
+                        foreach (var shape in vlskinningRenderer.BlendShapesList)
+                        {
+                            var blendShape = new MeshBlendShape
+                            {
+                                name = shape.BlendShapeName,
+                                firstVertex = (uint)firstVertex,
+                                vertexCount = (uint)shape.Vertices.Count,
+                                hasNormals = false,
+                                hasTangents = false
+                            };
+                            var shapeChannel = new MeshBlendShapeChannel
+                            {
+                                name = shape.BlendShapeName,
+                                nameHash = System.IO.Hashing.Crc32.HashToUInt32(Encoding.ASCII.GetBytes(shape.BlendShapeName)),
+                                frameIndex = index,
+                                frameCount = 1,
+                            };
+                            index++;
+                            meshBlendShapeList.Add(blendShape);
+                            shapeChanneList.Add(shapeChannel);
+                            firstVertex += shape.Vertices.Count;
+
+                        }
+                        foreach (var shape in vlskinningRenderer.BlendShapesList)
+                        {
+                            foreach (var vertice in shape.Vertices)
+                            {
+                                var blendShapeVertex = new BlendShapeVertex
+                                {
+                                    index = (uint)vertice.VertIndex,
+                                    vertex = vertice.Position,
+                                    normal = Vector3.Zero,
+                                    tangent = Vector3.Zero,
+                                };
+                                blendShapeVertexList.Add(blendShapeVertex);
+
+                            }
+                        }
+                        mesh.m_Shapes.shapes = meshBlendShapeList;
+                        mesh.m_Shapes.vertices = blendShapeVertexList;
+                        mesh.m_Shapes.channels = shapeChanneList;
+                        mesh.m_Shapes.fullWeights = vlskinningRenderer.blendShapeWeightsList.ToArray();
+                    }
+                }
+
+            }
             if (m_GameObject.m_MeshRenderer != null)
             {
                 ConvertMeshRenderer(m_GameObject.m_MeshRenderer);

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -410,9 +411,10 @@ namespace AssetStudio.GUI
             var convert = animationList != null
                 ? new ModelConverter(gameObject, options, animationList.Select(x => (AnimationClip)x.Asset).ToArray())
                 : new ModelConverter(gameObject, options);
-
-            if (convert.MeshList.Count == 0)
+            if (convert.MeshList.Count == 0 && gameObject.m_Components.Find(x => x.Name == "VLActorFaceModel") != null)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.ResetColor();
                 Logger.Info($"GameObject {gameObject.m_Name} has no mesh, skipping...");
                 return false;
             }

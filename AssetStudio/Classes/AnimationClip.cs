@@ -651,6 +651,11 @@ namespace AssetStudio
             node.Add(nameof(m_Extent), m_Extent.ExportYAML(version));
             return node;
         }
+        public AABB(Vector3 center, Vector3 extent)
+        {
+            m_Center = center;
+            m_Extent = extent;
+        }
     }
 
     public class HandPose

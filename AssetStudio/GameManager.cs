@@ -50,6 +50,8 @@ namespace AssetStudio
             Games.Add(index++, new Game(GameType.SchoolGirlStrikers));
             Games.Add(index++, new Game(GameType.ExAstris));
             Games.Add(index++, new Game(GameType.PerpetualNovelty));
+            Games.Add(index++, new Game(GameType.GakuenImas));
+
         }
         public static Game GetGame(GameType gameType) => GetGame((int)gameType);
         public static Game GetGame(int index)
@@ -171,6 +173,7 @@ namespace AssetStudio
         SchoolGirlStrikers,
         ExAstris,
         PerpetualNovelty,
+        GakuenImas
     }
 
     public static class GameTypes
@@ -198,6 +201,8 @@ namespace AssetStudio
         public static bool IsExAstris(this GameType type) => type == GameType.ExAstris;
         public static bool IsPerpetualNovelty(this GameType type) => type == GameType.PerpetualNovelty;
         public static bool IsShiningNikki(this GameType type) => type == GameType.ShiningNikki;
+        public static bool IsGakuenImas(this GameType type) => type == GameType.GakuenImas;
+
         public static bool IsGIGroup(this GameType type) => type switch
         {
             GameType.GI or GameType.GI_Pack or GameType.GI_CB1 or GameType.GI_CB2 or GameType.GI_CB3 or GameType.GI_CB3Pre => true,
