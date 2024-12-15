@@ -213,7 +213,6 @@ namespace AssetStudio
                     }
                     if (VLActorFaceModel != null)
                     {
-                        Console.WriteLine(VLActorFaceModel.m_PathID);
                         var obj = VLActorFaceModel.ToType();
                         var tmp = obj["bones"] as List<object>;
                         if (tmp != null)
@@ -251,7 +250,6 @@ namespace AssetStudio
 
                             }
                             vlskinningRenderer.Bindposes = bindposesList;
-                            Console.WriteLine("KMS");
                         }
                         var tmp1 = obj["localBounds"] as OrderedDictionary;
                         if (tmp1 != null)
