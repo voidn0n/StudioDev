@@ -46,6 +46,7 @@ namespace AssetStudio
                 case "UnityRaw":
                 case "UnityArchive":
                 case "UnityFS":
+                case "UnityKHNFS":
                     return FileType.BundleFile;
                 case "UnityWebData1.0":
                     return FileType.WebFile;
@@ -275,6 +276,10 @@ namespace AssetStudio
                     case GameType.SchoolGirlStrikers:
                         reader = DecryptSchoolGirlStrikers(reader);
                         break;
+                    case GameType.NarutoMobile:
+                        reader = DecryptNarutoMobile(reader);
+                        break;
+
                 }
             }
             if (reader.FileType == FileType.BundleFile && game.Type.IsBlockFile() || reader.FileType == FileType.ENCRFile || reader.FileType == FileType.BlbFile)

@@ -1424,5 +1424,48 @@ namespace AssetStudio
             ms.Position = 0;
             return new FileReader(reader.FullPath, ms);
         }
+        public static FileReader DecryptNarutoMobile(FileReader reader)
+        {
+            if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+            {
+                Logger.Verbose($"Attempting to decrypt file {reader.FileName} with NarutoMobile encryption");
+            }
+            var table = Encoding.UTF8.GetBytes("hAi5luE8FlyblDdCTQC9uxnj3rkNwd1swrKI7Mx1aDFEe2B5h#3X&s54%GuSeHf@");
+            var origin = reader.Position;
+            var m_Header = new Header()
+            {
+                signature = reader.ReadStringToNull(),
+                version = reader.ReadUInt32(),
+                unityVersion = reader.ReadStringToNull(),
+                unityRevision = reader.ReadStringToNull(),
+                size = reader.ReadInt64(),
+                compressedBlocksInfoSize = reader.ReadUInt32(),
+                uncompressedBlocksInfoSize = reader.ReadUInt32(),
+                flags = (ArchiveFlags)reader.ReadInt32()
+            };
+            reader.AlignStream(16);
+            var size = reader.Position - origin;
+            reader.Position = origin;
+            var header = reader.ReadBytes((int)size);
+            var blocksInfoBytes = reader.ReadBytes((int)m_Header.compressedBlocksInfoSize);
+            for (int i = 0; i < m_Header.compressedBlocksInfoSize; i++)
+            {
+                blocksInfoBytes[i] ^= table[i % table.Length];
+            }
+            byte[] swappedBytes = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((long)m_Header.compressedBlocksInfoSize));
+
+            for (long j = 0; j < m_Header.compressedBlocksInfoSize; j++)
+            {
+                blocksInfoBytes[j] ^= swappedBytes[j % swappedBytes.Length];
+            }
+            MemoryStream ms = new();
+            var data = reader.ReadBytes((int)reader.Remaining);
+            ms.Write(header);
+            ms.Write(blocksInfoBytes);
+            ms.Write(data);
+            ms.Position = 0;
+            return new FileReader(reader.FullPath, ms);
+        }
+
     }
 }

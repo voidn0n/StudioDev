@@ -139,6 +139,7 @@ namespace AssetStudio
                     }
                     break;
                 case "UnityFS":
+                case "UnityKHNFS":
                 case "ENCR":
                     ReadHeader(reader);
                     if (game.Type.IsUnityCN())
@@ -165,6 +166,7 @@ namespace AssetStudio
             switch (header.signature)
             {
                 case "UnityFS":
+                case "UnityKHNFS":
                     if (Game.Type.IsBH3Group() || Game.Type.IsBH3PrePre())
                     {
                         if (Game.Type.IsBH3Group())
