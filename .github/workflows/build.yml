@@ -6,7 +6,6 @@ on:
       - 'main'
     paths-ignore:
       - '**/LICENSE'
-      - '**/README.md'
       - '**/build.yml'
       - '**/.gitignore'
       - '**/.gitattributes'
@@ -37,23 +36,13 @@ jobs:
       - name: Upload .Net7 Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: net7.0-${{ github.sha }}
+          name: net7.0-${{ github.sha }}-${{matrix.runs-on}}
           path: AssetStudio.GUI/bin/Release/net7.0-windows/publish
 
       - name: Upload .Net8 Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: net8.0-${{ github.sha }}
+          name: net8.0-${{ github.sha }}-${{matrix.runs-on}}
           path: AssetStudio.GUI/bin/Release/net8.0-windows/publish
 
-      - name: Upload .Net7 CLI Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: net7.0-${{ github.sha }}
-          path: AssetStudio.GUI/bin/Release/net7.0-windows/publish
-
-      - name: Upload .Net8 CLI Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: net8.0-${{ github.sha }}
-          path: AssetStudio.GUI/bin/Release/net8.0-windows/publish
+    
