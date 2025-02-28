@@ -34,7 +34,21 @@ namespace AssetStudio.GUI.Properties {
                 this["displayAll"] = value;
             }
         }
-        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool multiBundle
+        {
+            get
+            {
+                return ((bool)(this["multiBundle"]));
+            }
+            set
+            {
+                this["multiBundle"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]

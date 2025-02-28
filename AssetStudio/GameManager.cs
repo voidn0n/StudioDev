@@ -8,6 +8,7 @@ namespace AssetStudio
     public static class GameManager
     {
         private static Dictionary<int, Game> Games = new Dictionary<int, Game>();
+
         static GameManager()
         {
             int index = 0;
@@ -182,6 +183,8 @@ namespace AssetStudio
 
     public static class GameTypes
     {
+        public static bool isMultiBundle { get; set; }
+
         public static bool IsNormal(this GameType type) => type == GameType.Normal;
         public static bool IsUnityCN(this GameType type) => type == GameType.UnityCN;
         public static bool IsGI(this GameType type) => type == GameType.GI;
@@ -233,11 +236,24 @@ namespace AssetStudio
             _ => false,
         };
 
-        public static bool IsBlockFile(this GameType type) => type switch
+        public static bool IsBlockFile(this GameType type)
         {
-            GameType.BH3 or GameType.BH3Pre or GameType.SR or GameType.GI_Pack or GameType.TOT or GameType.ArknightsEndfield => true,
-            _ => false,
-        };
+            if (isMultiBundle)
+            {
+                return true;
+            }
+            return type switch
+            {
+                GameType.BH3 or
+                GameType.BH3Pre or
+                GameType.SR or
+                GameType.GI_Pack or
+                GameType.TOT or
+                GameType.ArknightsEndfield => true,
+
+                _ => false,
+            };
+        }
 
         public static bool IsMhyGroup(this GameType type) => type switch
         {

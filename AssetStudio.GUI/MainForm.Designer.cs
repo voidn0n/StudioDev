@@ -44,6 +44,7 @@ namespace AssetStudio.GUI
             abortStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             displayAll = new System.Windows.Forms.ToolStripMenuItem();
+            multiBundle = new System.Windows.Forms.ToolStripMenuItem();
             toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
             enablePreview = new System.Windows.Forms.ToolStripMenuItem();
             enableModelPreview = new System.Windows.Forms.ToolStripMenuItem();
@@ -265,7 +266,7 @@ namespace AssetStudio.GUI
             // 
             // optionsToolStripMenuItem
             // 
-            optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { displayAll, toolStripSeparator10, enablePreview, enableModelPreview, modelsOnly, toolStripSeparator11, displayInfo, enableResolveDependencies, allowDuplicates, skipContainer, toolStripSeparator12, toolStripMenuItem14, specifyUnityCNKey, toolStripSeparator13, toolStripMenuItem18, toolStripMenuItem19, showExpOpt });
+            optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { displayAll, multiBundle,toolStripSeparator10, enablePreview, enableModelPreview, modelsOnly, toolStripSeparator11, displayInfo, enableResolveDependencies, allowDuplicates, skipContainer, toolStripSeparator12, toolStripMenuItem14, specifyUnityCNKey, toolStripSeparator13, toolStripMenuItem18, toolStripMenuItem19, showExpOpt });
             optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             optionsToolStripMenuItem.Text = "Options";
@@ -279,11 +280,22 @@ namespace AssetStudio.GUI
             displayAll.ToolTipText = "Check this option will display all types assets. Not extractable assets can export the RAW file.";
             displayAll.CheckedChanged += displayAll_CheckedChanged;
             // 
+            // multiBundle
+            // 
+            multiBundle.CheckOnClick = true;
+            multiBundle.Name = "multiBundle";
+            multiBundle.Size = new System.Drawing.Size(225, 22);
+            multiBundle.Text = "Load Multiple Bundles";
+            multiBundle.ToolTipText = "Check this option will load all bundles in one file";
+            multiBundle.CheckedChanged += multiBundle_CheckedChanged;
+            // 
             // toolStripSeparator10
             // 
             toolStripSeparator10.Name = "toolStripSeparator10";
             toolStripSeparator10.Size = new System.Drawing.Size(222, 6);
             // 
+
+
             // enablePreview
             // 
             enablePreview.Checked = true;
@@ -1451,6 +1463,7 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.Timer timer;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem displayAll;
+        private System.Windows.Forms.ToolStripMenuItem multiBundle;
         private System.Windows.Forms.ToolStripMenuItem enablePreview;
         private System.Windows.Forms.ToolStripMenuItem displayInfo;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;

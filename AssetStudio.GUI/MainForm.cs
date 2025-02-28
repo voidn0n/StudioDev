@@ -469,6 +469,12 @@ namespace AssetStudio.GUI
             Properties.Settings.Default.displayAll = displayAll.Checked;
             Properties.Settings.Default.Save();
         }
+        private void multiBundle_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.multiBundle = multiBundle.Checked;
+            Properties.Settings.Default.Save();
+            AssetStudio.GameTypes.isMultiBundle = multiBundle.Checked;
+        }
 
         private void enablePreview_Check(object sender, EventArgs e)
         {
