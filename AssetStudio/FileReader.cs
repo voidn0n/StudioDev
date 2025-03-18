@@ -279,6 +279,9 @@ namespace AssetStudio
                     case GameType.NarutoMobile:
                         reader = DecryptNarutoMobile(reader);
                         break;
+                    case GameType.CardCaptorSakura:
+                        reader = DecryptCardCaptorSakura(reader);
+                        break;
 
                 }
             }

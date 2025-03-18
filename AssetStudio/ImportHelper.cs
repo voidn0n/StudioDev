@@ -1466,6 +1466,40 @@ namespace AssetStudio
             ms.Position = 0;
             return new FileReader(reader.FullPath, ms);
         }
+        public static FileReader DecryptCardCaptorSakura(FileReader reader)
+        {
+            //credits Goku,benwong01f611
+            var data = reader.ReadBytes((int)reader.Length);
+            int length = data.Length;
+
+            int BIT_COUNT_LOCAL = length >> 1;
+            int BIT_COUNT = 1024;
+            if (BIT_COUNT_LOCAL > BIT_COUNT)
+            {
+                BIT_COUNT_LOCAL = BIT_COUNT;
+            }
+
+            int leftByte = 0;
+            int rightByte = length - 1;
+
+            while (leftByte < length)
+            {
+                data[leftByte] ^= data[rightByte];
+                rightByte--;
+                leftByte++;
+
+                if (leftByte >= BIT_COUNT_LOCAL)
+                {
+                    break;
+                }
+            }
+
+            MemoryStream ms = new();
+            ms.Write(data);
+            ms.Position = 0;
+            return new FileReader(reader.FullPath, ms);
+        }
+
 
     }
 }

@@ -54,6 +54,7 @@ namespace AssetStudio
             Games.Add(index++, new Game(GameType.PerpetualNovelty));
             Games.Add(index++, new Game(GameType.GakuenImas));
             Games.Add(index++, new Game(GameType.NarutoMobile));
+            Games.Add(index++, new Game(GameType.CardCaptorSakura));
 
         }
         public static Game GetGame(GameType gameType) => GetGame((int)gameType);
@@ -178,7 +179,8 @@ namespace AssetStudio
         ExAstris,
         PerpetualNovelty,
         GakuenImas,
-        NarutoMobile
+        NarutoMobile,
+        CardCaptorSakura,
     }
 
     public static class GameTypes
@@ -211,6 +213,7 @@ namespace AssetStudio
         public static bool IsShiningNikki(this GameType type) => type == GameType.ShiningNikki;
         public static bool IsGakuenImas(this GameType type) => type == GameType.GakuenImas;
         public static bool IsNarutoMobile(this GameType type) => type == GameType.NarutoMobile;
+        public static bool IsCardCaptorSakura(this GameType type) => type == GameType.CardCaptorSakura;
 
         public static bool IsGIGroup(this GameType type) => type switch
         {
