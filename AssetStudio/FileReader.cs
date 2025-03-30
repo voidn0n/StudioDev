@@ -282,6 +282,9 @@ namespace AssetStudio
                     case GameType.CardCaptorSakura:
                         reader = DecryptCardCaptorSakura(reader);
                         break;
+                     case GameType.ProjectNet:
+                        reader = DecryptProjectNet(reader);
+                        break;
 
                 }
             }
