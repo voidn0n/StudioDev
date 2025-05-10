@@ -547,13 +547,19 @@ namespace AssetStudio
 			}
                 for (int i = 0; i < nodesCount; i++)
                 {
-                    m_DirectoryInfo.Add(new Node
+                    var node = new Node
                     {
                         offset = blocksInfoReader.ReadInt64(),
                         size = blocksInfoReader.ReadInt64(),
                         flags = blocksInfoReader.ReadUInt32(),
                         path = blocksInfoReader.ReadStringToNull(),
-                    });
+                    };
+                    if (Game.Type.isThreeKingdoms())
+                    {
+                        node.offset ^= node.size ^ 0x3A6426D4;
+                        node.size = node.size ^0x1BF80687;
+                    }
+                    m_DirectoryInfo.Add(node);
 
                     if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
 			Logger.Verbose($"Directory {i} Info: {m_DirectoryInfo[i]}");
@@ -606,6 +612,11 @@ namespace AssetStudio
                     case CompressionType.Lz4HC: //LZ4HC
                     case CompressionType.Lz4Mr0k when Game.Type.IsMhyGroup(): //Lz4Mr0k
                         {
+                            if (Game.Type.isThreeKingdoms())
+                            {
+                                blockInfo.compressedSize = blockInfo.uncompressedSize ^ 0x166C2D5C ^ blockInfo.compressedSize;
+                                blockInfo.uncompressedSize = blockInfo.uncompressedSize ^ 0x37F00D0Fu;
+                            }
                             var compressedSize = (int)blockInfo.compressedSize;
                             var uncompressedSize = (int)blockInfo.uncompressedSize;
 
@@ -663,6 +674,7 @@ namespace AssetStudio
                                 {
                                     OPFPUtils.Decrypt(compressedBytesSpan, reader.FullPath);
                                 }
+
                                 var numWrite = LZ4.Instance.Decompress(compressedBytesSpan, uncompressedBytesSpan);
                                 if (numWrite != uncompressedSize)
                                 {

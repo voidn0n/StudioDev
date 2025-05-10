@@ -285,6 +285,9 @@ namespace AssetStudio
                      case GameType.ProjectNet:
                         reader = DecryptProjectNet(reader);
                         break;
+                    case GameType.ThreeKingdoms:
+                        reader = DecryptThreeKingdoms(reader);
+                        break;
 
                 }
             }

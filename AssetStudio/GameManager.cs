@@ -56,6 +56,7 @@ namespace AssetStudio
             Games.Add(index++, new Game(GameType.NarutoMobile));
             Games.Add(index++, new Game(GameType.CardCaptorSakura));
             Games.Add(index++, new Game(GameType.ProjectNet));
+            Games.Add(index++, new Game(GameType.ThreeKingdoms));
 
         }
         public static Game GetGame(GameType gameType) => GetGame((int)gameType);
@@ -183,6 +184,7 @@ namespace AssetStudio
         NarutoMobile,
         CardCaptorSakura,
         ProjectNet,
+        ThreeKingdoms
     }
 
     public static class GameTypes
@@ -217,6 +219,7 @@ namespace AssetStudio
         public static bool IsNarutoMobile(this GameType type) => type == GameType.NarutoMobile;
         public static bool IsCardCaptorSakura(this GameType type) => type == GameType.CardCaptorSakura;
         public static bool IsProjectNet(this GameType type) => type == GameType.ProjectNet;
+        public static bool isThreeKingdoms(this GameType type) => type == GameType.ThreeKingdoms;
 
         public static bool IsGIGroup(this GameType type) => type switch
         {

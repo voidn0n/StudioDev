@@ -1610,5 +1610,60 @@ namespace AssetStudio
 
 
         }
+        public static FileReader DecryptThreeKingdoms(FileReader reader)
+        {
+            if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+            {
+                Logger.Verbose($"Attempting to decrypt file {reader.FileName} with ThreeKingdoms encryption");
+            }
+          
+            var origin = reader.Position;
+            var m_Header = new Header()
+            {
+                signature = reader.ReadStringToNull(),
+                version = reader.ReadUInt32(),
+                unityVersion = reader.ReadStringToNull(),
+                unityRevision = reader.ReadStringToNull(),
+                size = reader.ReadInt64(),
+                compressedBlocksInfoSize = reader.ReadUInt32(),
+                uncompressedBlocksInfoSize = reader.ReadUInt32(),
+                flags = (ArchiveFlags)reader.ReadInt32()
+            };
+            uint c1 = 0x37F00D0F;
+            uint c2 = m_Header.compressedBlocksInfoSize - 0x8670814;
+            m_Header.size = (m_Header.size - 0x10CE1029) ^ c1;
+            m_Header.compressedBlocksInfoSize = ((m_Header.compressedBlocksInfoSize - 0x8670814) ^ c1);
+            m_Header.uncompressedBlocksInfoSize = ((m_Header.uncompressedBlocksInfoSize - 0xDFC0343) ^ 0x166C2D5C) ^ c2;
+            reader.AlignStream(16);
+            var size = reader.Position - origin;
+            reader.Position = origin;
+            MemoryStream ms = new();
+            var buffer = (stackalloc byte[8]);
+            ms.Write(Encoding.UTF8.GetBytes(m_Header.signature + '\0'));
+            BinaryPrimitives.WriteUInt32BigEndian(buffer, m_Header.version);
+            ms.Write(buffer[..4]);
+
+            ms.Write(Encoding.UTF8.GetBytes(m_Header.unityVersion + '\0'));
+
+            ms.Write(Encoding.UTF8.GetBytes(m_Header.unityRevision + '\0'));
+
+            BinaryPrimitives.WriteInt64BigEndian(buffer, m_Header.size);
+
+            ms.Write(buffer);
+            BinaryPrimitives.WriteUInt32BigEndian(buffer, m_Header.compressedBlocksInfoSize);
+            ms.Write(buffer[..4]);
+            BinaryPrimitives.WriteUInt32BigEndian(buffer, m_Header.uncompressedBlocksInfoSize);
+            ms.Write(buffer[..4]);
+            BinaryPrimitives.WriteUInt32BigEndian(buffer, (uint)m_Header.flags);
+            ms.Write(buffer[..4]);
+            ms.Write(new byte[14]);
+            reader.Position += size;
+            var blocksInfoBytes = reader.ReadBytes((int)m_Header.compressedBlocksInfoSize);
+            var data = reader.ReadBytes((int)reader.Remaining);
+            ms.Write(blocksInfoBytes);
+            ms.Write(data);
+            ms.Position = 0;
+            return new FileReader(reader.FullPath, ms);
+        }
     }
     }
