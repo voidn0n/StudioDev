@@ -554,10 +554,10 @@ namespace AssetStudio
                         flags = blocksInfoReader.ReadUInt32(),
                         path = blocksInfoReader.ReadStringToNull(),
                     };
-                    if (Game.Type.isThreeKingdoms())
+                    if (Game.Type.isThreeKingdoms() && (((uint)node.flags & 8) != 0))
                     {
                         node.offset ^= node.size ^ 0x3A6426D4;
-                        node.size = node.size ^0x1BF80687;
+                        node.size ^= 0x1BF80687;
                     }
                     m_DirectoryInfo.Add(node);
 
@@ -592,6 +592,11 @@ namespace AssetStudio
                 {
                     case CompressionType.None: //None
                         {
+                            if (Game.Type.isThreeKingdoms() && (((int)blockInfo.flags & 0x80) != 0))
+                            {
+                                blockInfo.compressedSize = blockInfo.uncompressedSize ^ 0x166C2D5C ^ blockInfo.compressedSize;
+                                blockInfo.uncompressedSize ^= 0x37F00D0Fu;
+                            }
                             reader.BaseStream.CopyTo(blocksStream, blockInfo.compressedSize);
                             break;
                         }
@@ -612,10 +617,10 @@ namespace AssetStudio
                     case CompressionType.Lz4HC: //LZ4HC
                     case CompressionType.Lz4Mr0k when Game.Type.IsMhyGroup(): //Lz4Mr0k
                         {
-                            if (Game.Type.isThreeKingdoms())
+                            if (Game.Type.isThreeKingdoms() && ( ((int)blockInfo.flags & 0x80) != 0 ))
                             {
                                 blockInfo.compressedSize = blockInfo.uncompressedSize ^ 0x166C2D5C ^ blockInfo.compressedSize;
-                                blockInfo.uncompressedSize = blockInfo.uncompressedSize ^ 0x37F00D0Fu;
+                                blockInfo.uncompressedSize ^= 0x37F00D0Fu;
                             }
                             var compressedSize = (int)blockInfo.compressedSize;
                             var uncompressedSize = (int)blockInfo.uncompressedSize;
