@@ -727,7 +727,7 @@ namespace AssetStudio
                             }
                             break;
                         }
-                    case CompressionType.Lz4Lit4 or CompressionType.Lz4Lit5 when Game.Type.IsExAstris():
+                    case CompressionType.Lz4Lit4 or CompressionType.Lz4Lit5 when (Game.Type.IsExAstris() || Game.Type.isBLR3()):
                         {
                             var compressedSize = (int)blockInfo.compressedSize;
                             var uncompressedSize = (int)blockInfo.uncompressedSize;

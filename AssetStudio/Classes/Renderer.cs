@@ -135,7 +135,11 @@ namespace AssetStudio
                 {
                     var m_RenderingLayerMask = reader.ReadUInt32();
                 }
-
+                if(reader.Game.Type.isThreeKingdoms())
+                {
+                    var m_ShadowOcclusionMask = reader.ReadUInt64();
+                    var m_OccludeeID = reader.ReadUInt32();
+                }
                 if (version[0] > 2018 || (version[0] == 2018 && version[1] >= 3)) //2018.3 and up
                 {
                     var m_RendererPriority = reader.ReadInt32();

@@ -11,12 +11,16 @@ namespace AssetStudio
         public int preloadIndex;
         public int preloadSize;
         public PPtr<Object> asset;
-
+        public string address;
         public AssetInfo(ObjectReader reader)
         {
             preloadIndex = reader.ReadInt32();
             preloadSize = reader.ReadInt32();
             asset = new PPtr<Object>(reader);
+            if (reader.Game.Type.isThreeKingdoms())
+            {
+                address = reader.ReadAlignedString();
+            }
         }
     }
 
@@ -38,7 +42,18 @@ namespace AssetStudio
             m_Container = new List<KeyValuePair<string, AssetInfo>>();
             for (int i = 0; i < m_ContainerSize; i++)
             {
-                m_Container.Add(new KeyValuePair<string, AssetInfo>(reader.ReadAlignedString(), new AssetInfo(reader)));
+                if (reader.Game.Type.isThreeKingdoms())
+                {
+                    var first = reader.ReadUInt64().ToString();
+                    var second = new AssetInfo(reader);
+                    first = second.address != "" ? second.address : first;
+                    m_Container.Add(new KeyValuePair<string, AssetInfo>(first, second));
+
+                }
+                else
+                {
+                    m_Container.Add(new KeyValuePair<string, AssetInfo>(reader.ReadAlignedString(), new AssetInfo(reader)));
+                }
             }
         }
     }
