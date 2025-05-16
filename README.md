@@ -1,3 +1,4 @@
+# ALL GAMES LISTED IN THIS FORK ARE NOT MAINTAINED AND MIGHT BREAK AT ANYTIME
 # Studio
 Check out the [original AssetStudio project](https://github.com/Perfare/AssetStudio) for more information.
 
