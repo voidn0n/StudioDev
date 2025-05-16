@@ -556,7 +556,43 @@ namespace AssetStudio
                     ConvertTransforms(child, frame);
             }
         }
+        private static TypeTree NN4TypeTree;
 
+        public static TypeTree NN4Skinned(int[] version)
+        {
+            if (NN4TypeTree == null)
+            {
+                var typeTree = new TypeTree();
+                typeTree.m_Nodes = new List<TypeTreeNode>
+            {
+                new TypeTreeNode("MonoBehaviour", "Base", 0, false),
+                new TypeTreeNode("PPtr<GameObject>", "m_GameObject", 1, false),
+                new TypeTreeNode("int", "m_FileID", 2, false),
+                new TypeTreeNode("SInt64", "m_PathID", 2, false),
+                new TypeTreeNode("UInt8", "m_Enabled", 1, true),
+                new TypeTreeNode("PPtr<MonoScript>", "m_Script", 1, false),
+                new TypeTreeNode("int", "m_FileID", 2, false),
+                new TypeTreeNode("SInt64", "m_PathID", 2, false),
+                new TypeTreeNode("string", "m_Name", 1, false),
+                new TypeTreeNode("Array", "Array", 2, true),
+                new TypeTreeNode("int", "size", 3, false),
+                new TypeTreeNode("char", "data", 3, false),
+                new TypeTreeNode("string", "RootBone", 1, false),
+                new TypeTreeNode("Array", "Array", 2, true),
+                new TypeTreeNode("int", "size", 3, false),
+                new TypeTreeNode("char", "data", 3, false),
+                new TypeTreeNode("vector", "Bones", 1, false),
+                new TypeTreeNode("Array", "Array", 2, false),
+                new TypeTreeNode("int", "size", 3, false),
+                new TypeTreeNode("string", "data", 3, false),
+                new TypeTreeNode("Array", "Array", 4, true),
+                new TypeTreeNode("int", "size", 5, false),
+                new TypeTreeNode("char", "data", 5, false)
+            };
+                NN4TypeTree = typeTree;
+            }
+            return NN4TypeTree;
+        }
         private void ConvertMeshRenderer(Renderer meshR)
         {
             var mesh = GetMesh(meshR);
@@ -723,11 +759,15 @@ namespace AssetStudio
                 var NN4GO = test.m_Components.Find(x => x.Name == "NN4SkinnedMeshRendererData");
                 if (NN4GO != null)
                 {
-                  
                     if (NN4GO.TryGet(out MonoBehaviour NN4SkinnedMeshRendererData))
                     { 
-                        Console.WriteLine(NN4SkinnedMeshRendererData.m_PathID);
                         var obj = NN4SkinnedMeshRendererData.ToType();
+                        if (obj == null)
+                        {
+                            var n4 = NN4Skinned(NN4SkinnedMeshRendererData.version);
+
+                            obj = TypeTreeHelper.ReadType(n4, NN4SkinnedMeshRendererData.reader);
+                        }
                         var bones = obj["Bones"] as List<object>;
                         var transforms = meshR.assetsFile.ObjectsDic
                             .Where(kvp => kvp.Value.type == ClassIDType.Transform);
@@ -738,7 +778,7 @@ namespace AssetStudio
                             .FirstOrDefault(obj => obj.m_GameObject.Name.Contains(NN4Bone));
                             if (transform != null)
                             {
-                                Logger.Debug($"Found transform with name: {NN4Bone}");
+                                Logger.Verbose($"Found transform with name: {NN4Bone}");
                                 sMesh.m_Bones[i].Set(transform);
                             }
 
