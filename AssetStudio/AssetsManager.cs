@@ -106,12 +106,18 @@ namespace AssetStudio
                 ProcessAssets();
             }
         }
-
         private void LoadFile(string fullName)
         {
-            var reader = new FileReader(fullName);
-            reader = reader.PreProcessing(Game);
-            LoadFile(reader);
+            if (File.Exists(fullName))
+            {
+                var reader = new FileReader(fullName);
+                reader = reader.PreProcessing(Game);
+                LoadFile(reader);
+            }
+            else
+            {
+                Logger.Error($"attempt to load missing file {fullName} this might cause issues with dependencies like models exporting");
+            }
         }
 
         private void LoadFile(FileReader reader)
