@@ -15,7 +15,7 @@ namespace AssetStudio
         public Game Game;
         public bool Silent = false;
         public bool SkipProcess = false;
-        public bool ResolveDependencies = false;        
+        public bool ResolveDependencies = false;               
         public string SpecifyUnityVersion;
         public CancellationTokenSource tokenSource = new CancellationTokenSource();
         public List<SerializedFile> assetsFileList = new List<SerializedFile>();

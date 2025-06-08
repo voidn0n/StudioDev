@@ -85,7 +85,7 @@ namespace AssetStudio.GUI
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             InitializeComponent();
-            Text = $"Studio v{Application.ProductVersion}";
+            Text = $"Studio v{Application.ProductVersion} PLEASE LOAD CABMAP AND READ THE GUIDE BEFORE USING STUDIO";
             InitializeExportOptions();
             InitializeProgressBar();
             InitializeLogger();
@@ -178,6 +178,7 @@ namespace AssetStudio.GUI
                 else
                 {
                     MapNameComboBox.Text = Properties.Settings.Default.selectedCABMapName;
+                    Text = $"Studio v{Application.ProductVersion}";
                 }
             }
         }
@@ -2167,6 +2168,7 @@ namespace AssetStudio.GUI
                 {
                     Properties.Settings.Default.selectedCABMapName = name;
                     Properties.Settings.Default.Save();
+                    Text = $"Studio v{Application.ProductVersion}";
                 }
             });
 
@@ -2419,6 +2421,7 @@ namespace AssetStudio.GUI
                 InvokeUpdate(loadCABMapToolStripMenuItem, false);
                 await Task.Run(() => AssetsHelper.LoadCABMap(path));
                 InvokeUpdate(loadCABMapToolStripMenuItem, true);
+                Text = $"Studio v{Application.ProductVersion}";
             }
         }
 
