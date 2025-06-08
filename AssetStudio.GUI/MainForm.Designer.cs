@@ -42,6 +42,7 @@ namespace AssetStudio.GUI
             toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             abortStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            exportLoadedPathsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             displayAll = new System.Windows.Forms.ToolStripMenuItem();
             multiBundle = new System.Windows.Forms.ToolStripMenuItem();
@@ -207,7 +208,7 @@ namespace AssetStudio.GUI
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { loadFileToolStripMenuItem, loadFolderToolStripMenuItem, toolStripMenuItem1, extractFileToolStripMenuItem, extractFolderToolStripMenuItem, toolStripSeparator6, resetToolStripMenuItem, abortStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { loadFileToolStripMenuItem, loadFolderToolStripMenuItem, toolStripMenuItem1, extractFileToolStripMenuItem, extractFolderToolStripMenuItem, toolStripSeparator6, resetToolStripMenuItem, exportLoadedPathsMenuItem,abortStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             fileToolStripMenuItem.Text = "File";
@@ -263,6 +264,13 @@ namespace AssetStudio.GUI
             abortStripMenuItem.Size = new System.Drawing.Size(144, 22);
             abortStripMenuItem.Text = "Abort";
             abortStripMenuItem.Click += abortStripMenuItem_Click;
+            // 
+            // exportLoadedPathsMenuItem
+            // 
+            exportLoadedPathsMenuItem.Name = "exportLoadedPaths";
+            exportLoadedPathsMenuItem.Size = new System.Drawing.Size(181, 26);
+            exportLoadedPathsMenuItem.Text = "Export Paths";
+            exportLoadedPathsMenuItem.Click += exportLoadedPathsMenuItem_Click;
             // 
             // optionsToolStripMenuItem
             // 
@@ -1421,6 +1429,7 @@ namespace AssetStudio.GUI
             PerformLayout();
         }
 
+
         #endregion
 
         private System.Windows.Forms.MenuStrip menuStrip1;
@@ -1538,6 +1547,7 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripMenuItem resetToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem abortStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportLoadedPathsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearMapToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem MapToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem assetMapToolStripMenuItem;

@@ -2378,7 +2378,11 @@ namespace AssetStudio.GUI
             assetsManager.tokenSource.Cancel();
             AssetsHelper.tokenSource.Cancel();
         }
-
+        private void exportLoadedPathsMenuItem_Click(object sender, EventArgs e)
+        {
+            File.WriteAllLines("exported_paths.txt",assetsManager.assetsFileList.Select(x => x.originalPath));
+            Logger.Info("Exported paths to exported_paths.txt");
+        }
         private async void loadAIToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (skipContainer.Checked)
