@@ -287,6 +287,9 @@ namespace AssetStudio
                         break;
                     case GameType.ThreeKingdoms:
                         reader = DecryptThreeKingdoms(reader);
+                        break;   
+                    case GameType.Metallopus:
+                        reader = DecryptMetallopus(reader);
                         break;
 
                 }

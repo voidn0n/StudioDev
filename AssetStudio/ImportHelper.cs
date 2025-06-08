@@ -1610,6 +1610,35 @@ namespace AssetStudio
 
 
         }
+        public static FileReader DecryptMetallopus(FileReader reader)
+        {
+            var keyArray = Encoding.UTF8.GetBytes("adre_path_res");
+            Array.Resize(ref keyArray, 16);
+            var c = 0;
+            for (int i = 0; i < keyArray.Length; i++)
+            {
+                keyArray[i] ^= (byte)(c += keyArray[i]);
+            }
+            var keyMask = keyArray[keyArray.Length - 1];
+
+            var data = reader.ReadBytes((int)reader.Length);
+            int length = data.Length;
+            for (int i = 0x100; i < Math.Min(data.Length, 0x7800); i++)
+            {
+                if (i < 2048)
+                    data[i] ^= keyArray[i % keyArray.Length];
+                if (i >= 0x800)
+                    data[i] ^= keyMask;
+            }
+
+            MemoryStream ms = new();
+            ms.Write(data);
+            ms.Position = 0;
+            return new FileReader(reader.FullPath, ms);
+
+
+
+        }
         public static FileReader DecryptThreeKingdoms(FileReader reader)
         {
             if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
