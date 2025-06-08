@@ -2380,7 +2380,11 @@ namespace AssetStudio.GUI
         }
         private void exportLoadedPathsMenuItem_Click(object sender, EventArgs e)
         {
-            File.WriteAllLines("exported_paths.txt",assetsManager.assetsFileList.Select(x => x.originalPath));
+            File.WriteAllLines("exported_paths.txt", assetsManager.assetsFileList
+    .Select(x => x.originalPath)
+    .Distinct()
+    .OrderBy(path => path)
+    .ToList());
             Logger.Info("Exported paths to exported_paths.txt");
         }
         private async void loadAIToolStripMenuItem_Click(object sender, EventArgs e)
