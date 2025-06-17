@@ -1639,6 +1639,41 @@ namespace AssetStudio
 
 
         }
+        public static FileReader DecryptEOS(FileReader reader)
+        {
+
+            var signature = reader.ReadStringToNull();
+            reader.Position = 0;
+            var fileData = reader.ReadBytes((int)reader.Length);
+            if (signature != "UnityFS")
+            {
+                int keyLen = fileData[4];
+                byte[] key = new byte[keyLen];
+                if (keyLen != 0)
+                {
+                    Array.Copy(fileData, 5, key, 0, keyLen);
+                    int dataOffset = 5 + keyLen;
+                    int dataLength = fileData.Length - dataOffset;
+                    byte[] data = new byte[dataLength];
+                    Array.Copy(fileData, dataOffset, data, 0, dataLength);
+
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        data[i] ^= key[i % key.Length];
+                    }
+                    fileData = data;
+
+                }
+
+            }
+            MemoryStream ms = new();
+            ms.Write(fileData);
+            ms.Position = 0;
+            return new FileReader(reader.FullPath, ms);
+
+
+
+        }
         public static FileReader DecryptThreeKingdoms(FileReader reader)
         {
             if (Logger.Flags.HasFlag(LoggerEvent.Verbose))

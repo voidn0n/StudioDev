@@ -59,6 +59,7 @@ namespace AssetStudio
             Games.Add(index++, new Game(GameType.ThreeKingdoms));
             Games.Add(index++, new Game(GameType.BLR3));
             Games.Add(index++, new Game(GameType.Metallopus));
+            Games.Add(index++, new Game(GameType.EOS));
 
         }
         public static Game GetGame(GameType gameType) => GetGame((int)gameType);
@@ -188,7 +189,8 @@ namespace AssetStudio
         ProjectNet,
         ThreeKingdoms,
         BLR3,
-        Metallopus
+        Metallopus,
+        EOS
     }
 
     public static class GameTypes
@@ -226,6 +228,7 @@ namespace AssetStudio
         public static bool isThreeKingdoms(this GameType type) => type == GameType.ThreeKingdoms;
         public static bool isBLR3(this GameType type) => type == GameType.BLR3;
         public static bool isMetallopus(this GameType type) => type == GameType.Metallopus;
+        public static bool isEOS (this GameType type) => type == GameType.EOS;
 
         public static bool IsGIGroup(this GameType type) => type switch
         {

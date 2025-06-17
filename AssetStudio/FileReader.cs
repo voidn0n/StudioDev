@@ -291,6 +291,9 @@ namespace AssetStudio
                     case GameType.Metallopus:
                         reader = DecryptMetallopus(reader);
                         break;
+                    case GameType.EOS:
+                        reader = DecryptEOS(reader);
+                        break;
 
                 }
             }
