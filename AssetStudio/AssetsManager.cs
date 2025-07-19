@@ -28,6 +28,8 @@ namespace AssetStudio
         internal HashSet<string> noexistFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         internal HashSet<string> assetsFileListHash = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        public Dictionary<Object, List<long>> PathIDsByObjectCache { get; set; }
+
         public void LoadFiles(params string[] files)
         {
             if (Silent)
@@ -98,6 +100,7 @@ namespace AssetStudio
             importFilesHash.Clear();
             noexistFiles.Clear();
             assetsFileListHash.Clear();
+            PathIDsByObjectCache = null;
             AssetsHelper.ClearOffsets();
 
             if (!SkipProcess)

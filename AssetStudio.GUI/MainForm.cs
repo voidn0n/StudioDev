@@ -1876,7 +1876,40 @@ namespace AssetStudio.GUI
                     }
                 }
             }
-            if (!string.IsNullOrEmpty(listSearch.Text))
+            if (listSearch.Text.StartsWith("#"))
+            {
+                string pattern = listSearch.Text.Substring(1);
+                var pathIdRegex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+                if (assetsManager.PathIDsByObjectCache == null)
+                {
+                    var dumpPathIDRegex = new Regex(@"_PathID\s*=\s*(-?\d+)", RegexOptions.Compiled);
+                    assetsManager.PathIDsByObjectCache = assetsManager.assetsFileList
+                        .SelectMany(file => file.ObjectsDic.Values)
+                        .ToDictionary(
+                            obj => obj,
+                            obj => dumpPathIDRegex.Matches(obj.Dump())
+                                .Cast<Match>()
+                                .Select(m => long.Parse(m.Groups[1].Value))
+                                .ToList()
+                        );
+                }
+
+                var pathIDsByObject = assetsManager.PathIDsByObjectCache;
+                var matchingObjects = pathIDsByObject
+                    .Where(kvp => kvp.Value.Any(id => pathIdRegex.IsMatch(id.ToString())))
+                    .Select(kvp => kvp.Key)
+                    .ToList();
+
+                var matchingPathIDs = matchingObjects.Select(o => o.m_PathID).ToHashSet();
+
+                visibleAssets = visibleAssets
+                    .Where(x => matchingPathIDs.Contains(x.m_PathID))
+                    .ToList();
+            }
+
+
+            if (!string.IsNullOrWhiteSpace(listSearch.Text) && !listSearch.Text.StartsWith("#"))
             {
                 try
                 {
