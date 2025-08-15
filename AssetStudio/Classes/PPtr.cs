@@ -26,6 +26,7 @@ namespace AssetStudio
             m_FileID = reader.ReadInt32();
             m_PathID = reader.m_Version < SerializedFileFormatVersion.Unknown_14 ? reader.ReadInt32() : reader.ReadInt64();
             assetsFile = reader.assetsFile;
+            assetsFile.assetsManager.AddPathId(reader.m_PathID, m_PathID);
         }
 
         public YAMLNode ExportYAML(int[] version)
@@ -143,6 +144,7 @@ namespace AssetStudio
             }
 
             m_PathID = m_Object.m_PathID;
+
         }
 
         public PPtr<T2> Cast<T2>() where T2 : Object

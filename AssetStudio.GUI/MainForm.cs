@@ -116,7 +116,7 @@ namespace AssetStudio.GUI
         {
             logger = new GUILogger(StatusStripUpdate);
             ConsoleHelper.AllocConsole();
-            ConsoleHelper.SetConsoleTitle("Debug Console");
+            ConsoleHelper.SetConsoleTitle($"Debug Console v{Application.ProductVersion}");
             var handle = ConsoleHelper.GetConsoleWindow();
             if (enableConsole.Checked)
             {
@@ -670,6 +670,19 @@ namespace AssetStudio.GUI
             foreach (TreeNode childNode in e.Node.Nodes)
             {
                 childNode.Checked = e.Node.Checked;
+            }
+        }
+        private void sceneTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            TreeNode clickedNode = e.Node;
+            var match = Regex.Match(clickedNode.Text, @"\((-?\d+)\)");
+
+
+
+            if (match.Success)
+            {
+                string number = match.Groups[1].Value;
+                Clipboard.SetText(number);
             }
         }
 
@@ -1881,41 +1894,41 @@ namespace AssetStudio.GUI
                 string pattern = listSearch.Text.Substring(1);
                 var pathIdRegex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-                if (assetsManager.PathIDsByObjectCache == null)
-                {
-                    var dumpPathIDRegex = new Regex(@"_PathID\s*=\s*(-?\d+)", RegexOptions.Compiled);
-                    assetsManager.PathIDsByObjectCache = assetsManager.assetsFileList
-          .SelectMany(file => file.ObjectsDic.Values)
-          .Where(obj => obj.type.CanExport())
-          .Select(obj =>
-          {
-              try
-              {
-                  var ids = dumpPathIDRegex.Matches(obj.Dump())
-                      .Cast<Match>()
-                      .Select(m => long.Parse(m.Groups[1].Value))
-                      .ToList();
+          //      if (assetsManager.PathIDsByObjectCache == null)
+          //      {
+          //          var dumpPathIDRegex = new Regex(@"_PathID\s*=\s*(-?\d+)", RegexOptions.Compiled);
+          //          assetsManager.PathIDsByObjectCache = assetsManager.assetsFileList
+          //.SelectMany(file => file.ObjectsDic.Values)
+          //.Where(obj => obj.type.CanParse())
+          //.Select(obj =>
+          //{
+          //    try
+          //    {
+          //        var ids = dumpPathIDRegex.Matches(obj.Dump())
+          //            .Cast<Match>()
+          //            .Select(m => long.Parse(m.Groups[1].Value))
+          //            .ToList();
 
-                  return new { obj, ids };
-              }
-              catch
-              {
-                  Logger.Info($"FAILED pathid lookup (disable type maybe) {obj.Name} {obj.m_PathID} {obj.type}");
-                  return null; // Skip this object
-              }
-          })
-          .Where(x => x != null)
-          .ToDictionary(x => x.obj, x => x.ids);
+          //        return new { obj, ids };
+          //    }
+          //    catch
+          //    {
+          //        Logger.Info($"FAILED pathid lookup (disable type parse) {obj.Name} {obj.m_PathID} {obj.type}");
+          //        return null; // Skip this object
+          //    }
+          //})
+          //.Where(x => x != null && x.ids.Count > 0)
+          //.ToDictionary(x => x.obj, x => x.ids);
 
-                }
+          //      }
 
-                var pathIDsByObject = assetsManager.PathIDsByObjectCache;
+                var pathIDsByObject = assetsManager.PathIdToPptrs;
                 var matchingObjects = pathIDsByObject
                     .Where(kvp => kvp.Value.Any(id => pathIdRegex.IsMatch(id.ToString())))
                     .Select(kvp => kvp.Key)
                     .ToList();
 
-                var matchingPathIDs = matchingObjects.Select(o => o.m_PathID).ToHashSet();
+                var matchingPathIDs = matchingObjects.ToHashSet();
 
                 visibleAssets = visibleAssets
                     .Where(x => matchingPathIDs.Contains(x.m_PathID))

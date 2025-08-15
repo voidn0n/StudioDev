@@ -9,11 +9,12 @@ namespace AssetStudio.GUI
         public GameObjectTreeNode(GameObject gameObject)
         {
             this.gameObject = gameObject;
-            Text = gameObject.m_Name;
+            Text = $"{gameObject.m_Name} ({gameObject.m_PathID})";
             if (gameObject.HasModel())
             {
                 BackColor = System.Drawing.Color.LightBlue;
             }
         }
+
     }
 }

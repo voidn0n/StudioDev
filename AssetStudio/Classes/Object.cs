@@ -57,7 +57,6 @@ namespace AssetStudio
             }
             return null;
         }
-
         public string Dump(TypeTree m_Type)
         {
             if (m_Type != null)

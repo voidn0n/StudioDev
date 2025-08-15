@@ -29,7 +29,16 @@ namespace AssetStudio
         internal HashSet<string> assetsFileListHash = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         public Dictionary<Object, List<long>> PathIDsByObjectCache { get; set; }
-
+        public Dictionary<long, List<long>> PathIdToPptrs { get; set; } = new();
+        public void AddPathId(long key, long value)
+        {
+            if (!PathIdToPptrs.TryGetValue(key, out var list))
+            {
+                list = new List<long>();
+                PathIdToPptrs[key] = list;
+            }
+            list.Add(value);
+        }
         public void LoadFiles(params string[] files)
         {
             if (Silent)
