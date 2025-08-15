@@ -1885,14 +1885,28 @@ namespace AssetStudio.GUI
                 {
                     var dumpPathIDRegex = new Regex(@"_PathID\s*=\s*(-?\d+)", RegexOptions.Compiled);
                     assetsManager.PathIDsByObjectCache = assetsManager.assetsFileList
-                        .SelectMany(file => file.ObjectsDic.Values)
-                        .ToDictionary(
-                            obj => obj,
-                            obj => dumpPathIDRegex.Matches(obj.Dump())
-                                .Cast<Match>()
-                                .Select(m => long.Parse(m.Groups[1].Value))
-                                .ToList()
-                        );
+          .SelectMany(file => file.ObjectsDic.Values)
+          .Where(obj => obj.type.CanExport())
+          .Select(obj =>
+          {
+              try
+              {
+                  var ids = dumpPathIDRegex.Matches(obj.Dump())
+                      .Cast<Match>()
+                      .Select(m => long.Parse(m.Groups[1].Value))
+                      .ToList();
+
+                  return new { obj, ids };
+              }
+              catch
+              {
+                  Logger.Info($"FAILED pathid lookup (disable type maybe) {obj.Name} {obj.m_PathID} {obj.type}");
+                  return null; // Skip this object
+              }
+          })
+          .Where(x => x != null)
+          .ToDictionary(x => x.obj, x => x.ids);
+
                 }
 
                 var pathIDsByObject = assetsManager.PathIDsByObjectCache;
