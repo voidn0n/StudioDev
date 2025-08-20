@@ -1,4 +1,5 @@
 # ALL GAMES LISTED IN THIS FORK ARE NOT MAINTAINED AND MIGHT BREAK AT ANYTIME
+## [Download](https://nightly.link/Xtakuo/StudioDev/workflows/build/main?preview)
 # Studio
 Check out the [original AssetStudio project](https://github.com/Perfare/AssetStudio) for more information.
 
