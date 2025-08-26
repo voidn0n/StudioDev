@@ -1934,9 +1934,53 @@ namespace AssetStudio.GUI
                     .Where(x => matchingPathIDs.Contains(x.m_PathID))
                     .ToList();
             }
+            if (listSearch.Text.StartsWith("!"))
+            {
+                string pattern = listSearch.Text.Substring(1);
+                var pathIdRegex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+                if (assetsManager.PathIDsByObjectCache == null)
+                {
+                    var dumpPathIDRegex = new Regex(@"_PathID\s*=\s*(-?\d+)", RegexOptions.Compiled);
+                    assetsManager.PathIDsByObjectCache = assetsManager.assetsFileList
+          .SelectMany(file => file.ObjectsDic.Values)
+          .Where(obj => obj.type.CanParse())
+          .Select(obj =>
+          {
+              try
+              {
+                  var ids = dumpPathIDRegex.Matches(obj.Dump())
+                      .Cast<Match>()
+                      .Select(m => long.Parse(m.Groups[1].Value))
+                      .ToList();
 
-            if (!string.IsNullOrWhiteSpace(listSearch.Text) && !listSearch.Text.StartsWith("#"))
+                  return new { obj, ids };
+              }
+              catch
+              {
+                  Logger.Info($"FAILED pathid lookup (disable type parse) {obj.Name} {obj.m_PathID} {obj.type}");
+                  return null; // Skip this object
+              }
+          })
+          .Where(x => x != null && x.ids.Count > 0)
+          .ToDictionary(x => x.obj, x => x.ids);
+                }
+
+                var pathIDsByObject = assetsManager.PathIDsByObjectCache;
+                var matchingObjects = pathIDsByObject
+                    .Where(kvp => kvp.Value.Any(id => pathIdRegex.IsMatch(id.ToString())))
+                    .Select(kvp => kvp.Key)
+                    .ToList();
+
+                var matchingPathIDs = matchingObjects.Select(o => o.m_PathID).ToHashSet();
+
+                visibleAssets = visibleAssets
+                    .Where(x => matchingPathIDs.Contains(x.m_PathID))
+                    .ToList();
+            }
+            
+
+            if (!string.IsNullOrWhiteSpace(listSearch.Text) && !listSearch.Text.StartsWith("#") && !listSearch.Text.StartsWith("!"))
             {
                 try
                 {
