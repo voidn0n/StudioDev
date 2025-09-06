@@ -1941,7 +1941,10 @@ namespace AssetStudio.GUI
 
                 if (assetsManager.PathIDsByObjectCache == null)
                 {
-                    var dumpPathIDRegex = new Regex(@"_PathID\s*=\s*(-?\d+)", RegexOptions.Compiled);
+                    var dumpPathIDRegex = new Regex(
+    @"(?:_PathID\s*=\s*|""m_PathID""\s*:\s*)(-?\d+)",
+    RegexOptions.Compiled
+);
                     assetsManager.PathIDsByObjectCache = assetsManager.assetsFileList
           .SelectMany(file => file.ObjectsDic.Values)
           .Where(obj => obj.type.CanParse())
