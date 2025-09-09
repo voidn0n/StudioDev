@@ -1,24 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
-    <Version>1.36.00</Version>
-    <AssemblyVersion>1.36.00</AssemblyVersion>
-    <FileVersion>1.36.00</FileVersion>
-    <Copyright>Copyright © Razmoth 2022; Copyright © Perfare 2018-2022</Copyright>
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+		<Version>1.36.00</Version>
+		<AssemblyVersion>1.36.00</AssemblyVersion>
+		<FileVersion>1.36.00</FileVersion>
+		<Copyright>Copyright © Razmoth 2022; Copyright © Perfare 2018-2022</Copyright>
+		<DebugType>embedded</DebugType>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+		<PackageReference Include="FastEnum" Version="1.8.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-	<PackageReference Include="MessagePack" Version="2.6.100-alpha" />
-	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-	<PackageReference Include="ZstdSharp.Port" Version="0.7.2" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<PackageReference Include="FastEnum" Version="2.0.5" />
+		<PackageReference Include="FastEnum.Core" Version="2.0.5" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MessagePack" Version="2.6.100-alpha" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="ZstdSharp.Port" Version="0.7.2" />
+	</ItemGroup>
 
-  <ItemGroup>
-  	<None Update="Keys.json">
-  		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  	</None>
-  </ItemGroup>
-	
+	<ItemGroup>
+		<None Update="Keys.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>
+

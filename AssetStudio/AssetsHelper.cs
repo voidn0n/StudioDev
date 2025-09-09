@@ -362,7 +362,7 @@ namespace AssetStudio
             }
             stopwatch.Stop();
             Console.ForegroundColor = ConsoleColor.Green;
-            Logger.Info($"BuildAssetMap {mapName} completed in {stopwatch.Elapsed.TotalSeconds} seconds.");
+            Console.WriteLine($"BuildAssetMap {mapName} completed in {stopwatch.Elapsed.TotalSeconds} seconds.");
             Console.ResetColor();
 
         }
@@ -499,6 +499,22 @@ namespace AssetStudio
                 if (pptr.TryGet<GameObject>(out var gameObject))
                 {
                     asset.Name = gameObject.m_Name;
+                    if (ClassIDType.GameObject.CanExport())
+                    {
+                        var tmp = new AssetEntry()
+                        {
+                            Source = file,
+                            PathID = gameObject.m_PathID,
+                            Type = gameObject.type,
+                            Container = ""
+                        };
+                        tmp.Name = gameObject.m_Name;
+                        if (!objectAssetItemDic.ContainsKey(gameObject)){
+                            objectAssetItemDic.Add(gameObject, tmp);
+                            matches.Add(tmp);
+                        }
+                      
+                    }
                 }
             }
             foreach ((var pptr, var name) in mihoyoBinDataNames)
@@ -738,7 +754,7 @@ namespace AssetStudio
             await ExportAssetsMap(assets, game, mapName, savePath, exportListType);
             stopwatch.Stop();
             Console.ForegroundColor = ConsoleColor.Green;
-            Logger.Info($"BuildBoth {mapName} completed in {stopwatch.Elapsed.TotalSeconds} seconds.");
+            Console.WriteLine($"BuildBoth {mapName} completed in {stopwatch.Elapsed.TotalSeconds} seconds.");
             Console.ResetColor();
 
         }

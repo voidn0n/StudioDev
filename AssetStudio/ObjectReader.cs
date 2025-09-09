@@ -25,19 +25,16 @@ namespace AssetStudio
             m_PathID = objectInfo.m_PathID;
             byteStart = objectInfo.byteStart;
             byteSize = objectInfo.byteSize;
-            if (Enum.IsDefined(typeof(ClassIDType), objectInfo.classID))
-            {
+            if (FastEnumUtility.FastEnum.IsDefined<ClassIDType>((ClassIDType)objectInfo.classID))
                 type = (ClassIDType)objectInfo.classID;
-            }
             else
-            {
                 type = ClassIDType.UnknownType;
-            }
+
             serializedType = objectInfo.serializedType;
             platform = assetsFile.m_TargetPlatform;
             m_Version = assetsFile.header.m_Version;
 
-            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
+            if(Logger.Flags == LoggerEvent.Verbose){
 			Logger.Verbose($"Initialized reader for {type} object with {m_PathID} in file {assetsFile.fileName} !!");
 			}
         }
