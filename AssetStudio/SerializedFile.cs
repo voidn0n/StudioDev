@@ -459,8 +459,12 @@ namespace AssetStudio
             if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
 			Logger.Verbose($"Caching object with {obj.m_PathID} in file {fileName}...");
 			}
-            Objects.Add(obj);
-            ObjectsDic.Add(obj.m_PathID, obj);
+            if (!ObjectsDic.ContainsKey(obj.m_PathID))
+            {
+                Objects.Add(obj);
+                ObjectsDic.Add(obj.m_PathID, obj);
+            }
+
         }
 
         private static int DecodeClassID(int value)

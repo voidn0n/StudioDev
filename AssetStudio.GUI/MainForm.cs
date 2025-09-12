@@ -476,7 +476,13 @@ namespace AssetStudio.GUI
             Properties.Settings.Default.Save();
             AssetStudio.GameTypes.isMultiBundle = multiBundle.Checked;
         }
-
+        private void partialLoad_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.partialLoad= partialLoad.Checked;
+            Properties.Settings.Default.Save();
+            AssetStudio.AssetsHelper.paritial = partialLoad.Checked;
+        }
+        
         private void enablePreview_Check(object sender, EventArgs e)
         {
             if (lastSelectedItem != null)
@@ -586,6 +592,27 @@ namespace AssetStudio.GUI
         {
             treeSrcResults.Clear();
             nextGObject = 0;
+        }
+        private void assetExtTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                var textBox = sender as ToolStripTextBox; 
+                string ext = textBox?.Text.Trim();
+
+                if (string.IsNullOrEmpty(ext))
+                {
+                    Logger.Warning("Extension cannot be empty.");
+                    return;
+                }
+
+                if (!ext.StartsWith("."))
+                    ext = "." + ext;
+
+                Logger.Info($"Extension set to: {ext}");
+                Studio.Game.Ext = "*"+ext;
+            }
         }
 
         private void treeSearch_KeyDown(object sender, KeyEventArgs e)
@@ -2399,6 +2426,138 @@ namespace AssetStudio.GUI
                     saveDirectoryBackup = saveFolderDialog.Folder;
                     AssetsHelper.SetUnityVersion(version);
                     await Task.Run(() => AssetsHelper.BuildBoth(files, name, openFolderDialog.Folder, Studio.Game, saveFolderDialog.Folder, exportListType));
+                }
+            }
+            InvokeUpdate(miscToolStripMenuItem, true);
+        }
+        private async void buildBothParallelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            miscToolStripMenuItem.DropDown.Visible = false;
+            InvokeUpdate(miscToolStripMenuItem, false);
+
+            var input = MapNameComboBox.Text;
+            var selectedText = MapNameComboBox.SelectedText;
+            var exportListType = (ExportListType)assetMapTypeMenuItem.DropDownItems.Cast<ToolStripMenuItem>().Select(x => x.Checked ? (int)x.Tag : 0).Sum();
+            var name = "";
+
+            if (!string.IsNullOrEmpty(selectedText))
+            {
+                name = selectedText;
+            }
+            else if (!string.IsNullOrEmpty(input))
+            {
+                if (input.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
+                {
+                    Logger.Warning("Name has invalid characters !!");
+                    InvokeUpdate(miscToolStripMenuItem, true);
+                    return;
+                }
+
+                name = input;
+            }
+            else
+            {
+                Logger.Error("Map name is empty, please enter any name in ComboBox above");
+                InvokeUpdate(miscToolStripMenuItem, true);
+                return;
+            }
+
+            if (File.Exists(Path.Combine(AssetsHelper.MapName, $"{name}.bin")))
+            {
+                var acceptOverride = MessageBox.Show("Map already exist, Do you want to override it ?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (acceptOverride != DialogResult.Yes)
+                {
+                    InvokeUpdate(miscToolStripMenuItem, true);
+                    return;
+                }
+            }
+
+            var version = specifyUnityVersion.Text;
+            var openFolderDialog = new OpenFolderDialog();
+            openFolderDialog.Title = "Select Game Folder";
+            if (openFolderDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                //Logger.Info("Scanning for files...");
+                string searchPattern = string.IsNullOrWhiteSpace(Studio.Game.Ext) ? "*.*" : Studio.Game.Ext;
+                Logger.Info($"Scanning for files... {searchPattern}");
+                var files = Directory.GetFiles(openFolderDialog.Folder, searchPattern, SearchOption.AllDirectories).ToArray();
+
+                Logger.Info($"Found {files.Length} files");
+
+                var saveFolderDialog = new OpenFolderDialog();
+                saveFolderDialog.InitialFolder = saveDirectoryBackup;
+                saveFolderDialog.Title = "Select Output Folder";
+                if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    saveDirectoryBackup = saveFolderDialog.Folder;
+                    AssetsHelper.SetUnityVersion(version);
+                    await Task.Run(() => AssetsHelperParallel.BuildBothParallel(files, name, openFolderDialog.Folder, Studio.Game, saveFolderDialog.Folder, exportListType));
+                }
+            }
+            InvokeUpdate(miscToolStripMenuItem, true);
+        }
+        private async void buildBothParallelTestToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            miscToolStripMenuItem.DropDown.Visible = false;
+            InvokeUpdate(miscToolStripMenuItem, false);
+
+            var input = MapNameComboBox.Text;
+            var selectedText = MapNameComboBox.SelectedText;
+            var exportListType = (ExportListType)assetMapTypeMenuItem.DropDownItems.Cast<ToolStripMenuItem>().Select(x => x.Checked ? (int)x.Tag : 0).Sum();
+            var name = "";
+
+            if (!string.IsNullOrEmpty(selectedText))
+            {
+                name = selectedText;
+            }
+            else if (!string.IsNullOrEmpty(input))
+            {
+                if (input.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
+                {
+                    Logger.Warning("Name has invalid characters !!");
+                    InvokeUpdate(miscToolStripMenuItem, true);
+                    return;
+                }
+
+                name = input;
+            }
+            else
+            {
+                Logger.Error("Map name is empty, please enter any name in ComboBox above");
+                InvokeUpdate(miscToolStripMenuItem, true);
+                return;
+            }
+
+            if (File.Exists(Path.Combine(AssetsHelper.MapName, $"{name}.bin")))
+            {
+                var acceptOverride = MessageBox.Show("Map already exist, Do you want to override it ?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (acceptOverride != DialogResult.Yes)
+                {
+                    InvokeUpdate(miscToolStripMenuItem, true);
+                    return;
+                }
+            }
+
+            var version = specifyUnityVersion.Text;
+            var openFolderDialog = new OpenFolderDialog();
+            openFolderDialog.Title = "Select Game Folder";
+            if (openFolderDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                //Logger.Info("Scanning for files...");
+                string searchPattern = string.IsNullOrWhiteSpace(Studio.Game.Ext) ? "*.*" : Studio.Game.Ext;
+                Logger.Info($"Scanning for files... {searchPattern}");
+                var files = Directory.GetFiles(openFolderDialog.Folder, searchPattern, SearchOption.AllDirectories).ToArray();
+
+                Logger.Info($"Found {files.Length} files");
+
+                var saveFolderDialog = new OpenFolderDialog();
+                saveFolderDialog.InitialFolder = saveDirectoryBackup;
+                saveFolderDialog.Title = "Select Output Folder";
+                if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    saveDirectoryBackup = saveFolderDialog.Folder;
+                    AssetsHelper.SetUnityVersion(version);
+                    await Task.Run(() => AssetsHelperParallel.BuildBothParallelTest(files, name, openFolderDialog.Folder, Studio.Game, saveFolderDialog.Folder, exportListType));
                 }
             }
             InvokeUpdate(miscToolStripMenuItem, true);

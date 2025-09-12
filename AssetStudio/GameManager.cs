@@ -83,11 +83,18 @@ namespace AssetStudio
     {
         public string Name { get; set; }
         public GameType Type { get; }
+        public string Ext { get; set; }
 
         public Game(GameType type)
         {
             Name = type.ToString();
             Type = type;
+        }
+        public Game(GameType type,string ext)
+        {
+            Name = type.ToString();
+            Type = type;
+            Ext = ext;
         }
 
         public sealed override string ToString() => Name;

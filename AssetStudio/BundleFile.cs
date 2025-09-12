@@ -118,7 +118,7 @@ namespace AssetStudio
         private bool HasUncompressedDataHash = true;
         private bool HasBlockInfoNeedPaddingAtStart = true;
 
-        public BundleFile(FileReader reader, Game game)
+        public BundleFile(FileReader reader, Game game,bool partitial=false)
         {
             Game = game;
             m_Header = ReadBundleHeader(reader);
@@ -148,6 +148,11 @@ namespace AssetStudio
                         ReadUnityCN(reader);
                     }
                     ReadBlocksInfoAndDirectory(reader);
+                    if (partitial)
+                    {
+                        var m_tmpBLocks = FilterBlocks(m_BlocksInfo, m_DirectoryInfo[0]);
+                        m_BlocksInfo = m_tmpBLocks;
+                    }
                     using (var blocksStream = CreateBlocksStream(reader.FullPath))
                     {
                         ReadBlocks(reader, blocksStream);
@@ -155,6 +160,27 @@ namespace AssetStudio
                     }
                     break;
             }
+        }
+        public static List<StorageBlock> FilterBlocks(List<StorageBlock> blocks, Node dirInfo)
+        {
+            var filtered = new List<StorageBlock>();
+            long targetSize = dirInfo.size;
+            long accumulated = 0;
+
+            foreach (var block in blocks)
+            {
+                if (accumulated + block.uncompressedSize >= targetSize)
+                {
+                    filtered.Add(block);
+                    accumulated += block.uncompressedSize;
+                    break;
+                }
+
+                filtered.Add(block);
+                accumulated += block.uncompressedSize;
+            }
+
+            return filtered;
         }
 
         private Header ReadBundleHeader(FileReader reader)

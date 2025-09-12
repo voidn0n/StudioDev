@@ -1,17 +1,19 @@
-﻿using System;
+﻿using MessagePack;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
-using System.Threading;
-using System.Globalization;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using System.Xml;
+using System.Runtime.CompilerServices;
 using System.Text;
-using MessagePack;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Diagnostics;
+using System.Xml;
 
 namespace AssetStudio
 {
@@ -26,6 +28,7 @@ namespace AssetStudio
         private static Dictionary<string, Entry> CABMap = new Dictionary<string, Entry>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, HashSet<long>> Offsets = new Dictionary<string, HashSet<long>>();
         private static AssetsManager assetsManager = new AssetsManager() { Silent = true, SkipProcess = true, ResolveDependencies = false };
+        public static bool paritial;
 
         public record Entry
         {
@@ -44,9 +47,10 @@ namespace AssetStudio
             Directory.CreateDirectory(MapName);
             var files = Directory.GetFiles(MapName, "*.bin", SearchOption.TopDirectoryOnly);
             var mapNames = files.Select(Path.GetFileNameWithoutExtension).ToArray();
-            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Found {mapNames.Length} CABMaps under Maps folder");
-			}
+            if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+            {
+                Logger.Verbose($"Found {mapNames.Length} CABMaps under Maps folder");
+            }
             return mapNames;
         }
 
@@ -60,26 +64,29 @@ namespace AssetStudio
             tokenSource.Dispose();
             tokenSource = new CancellationTokenSource();
 
-            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Cleared AssetsHelper successfully !!");
-			}
+            if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+            {
+                Logger.Verbose("Cleared AssetsHelper successfully !!");
+            }
         }
 
         public static void ClearOffsets()
         {
             Offsets.Clear();
-            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Cleared cached offsets");
-			}
+            if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+            {
+                Logger.Verbose("Cleared cached offsets");
+            }
         }
 
         public static bool TryGet(string path, out long[] offsets)
         {
             if (Offsets.TryGetValue(path, out var list) && list.Count > 0)
             {
-                if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Found {list.Count} offsets for path {path}");
-			}
+                if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+                {
+                    Logger.Verbose($"Found {list.Count} offsets for path {path}");
+                }
                 offsets = list.ToArray();
                 return true;
             }
@@ -95,16 +102,18 @@ namespace AssetStudio
                 if (CABMap.TryGetValue(cab, out var entry))
                 {
                     var fullPath = Path.Combine(BaseFolder, entry.Path);
-                    if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Found {cab} in {fullPath}");
-			}
+                    if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+                    {
+                        Logger.Verbose($"Found {cab} in {fullPath}");
+                    }
                     if (!paths.Contains(fullPath))
                     {
                         Offsets.TryAdd(fullPath, new HashSet<long>());
                         Offsets[fullPath].Add(entry.Offset);
-                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Added {fullPath} to Offsets, at offset {entry.Offset}");
-			}
+                        if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+                        {
+                            Logger.Verbose($"Added {fullPath} to Offsets, at offset {entry.Offset}");
+                        }
                     }
                     foreach (var dep in entry.Dependencies)
                     {
@@ -119,9 +128,10 @@ namespace AssetStudio
         {
             var relativePath = Path.GetRelativePath(BaseFolder, path);
             cabs = CABMap.AsParallel().Where(x => x.Value.Path.Equals(relativePath, StringComparison.OrdinalIgnoreCase)).Select(x => x.Key).Distinct().ToList();
-            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Found {cabs.Count} that belongs to {relativePath}");
-			}
+            if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+            {
+                Logger.Verbose($"Found {cabs.Count} that belongs to {relativePath}");
+            }
             return cabs.Count != 0;
         }
 
@@ -130,17 +140,19 @@ namespace AssetStudio
             foreach (var file in files)
             {
                 Offsets.TryAdd(file, new HashSet<long>());
-                if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Added {file} to Offsets dictionary");
-			}
+                if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+                {
+                    Logger.Verbose($"Added {file} to Offsets dictionary");
+                }
                 if (FindCAB(file, out var cabs))
                 {
                     AddCABOffsets(files, cabs);
                 }
             }
-            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Finished resolving dependncies, the original {files.Length} files will be loaded entirely, and the {Offsets.Count - files.Length} dependicnes will be loaded from cached offsets only");
-			}
+            if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+            {
+                Logger.Verbose($"Finished resolving dependncies, the original {files.Length} files will be loaded entirely, and the {Offsets.Count - files.Length} dependicnes will be loaded from cached offsets only");
+            }
             return Offsets.Keys.ToArray();
         }
 
@@ -183,10 +195,10 @@ namespace AssetStudio
             }
         }
 
-        private static IEnumerable<string> LoadFiles(string[] files)
+        public static IEnumerable<string> LoadFiles(string[] files)
         {
             string msg;
-            
+
             var path = Path.GetDirectoryName(Path.GetFullPath(files[0]));
             ImportHelper.MergeSplitAssets(path);
             var toReadFile = ImportHelper.ProcessingSplitFiles(files.ToList());
@@ -209,6 +221,38 @@ namespace AssetStudio
                 Logger.Info($"[{i + 1}/{filesList.Count}] {msg}");
                 Progress.Report(i + 1, filesList.Count);
                 assetsManager.Clear();
+            }
+        }
+        public static IEnumerable<string> LoadFiles(string[] files, AssetsManager manager, int totalFiles, Action<int, int, string> reportProgress = null)
+        {
+            if (files.Length == 0)
+                yield break;
+
+            var path = Path.GetDirectoryName(Path.GetFullPath(files[0]));
+            ImportHelper.MergeSplitAssets(path);
+            var toReadFile = ImportHelper.ProcessingSplitFiles(files.ToList());
+
+            var filesList = new List<string>(toReadFile);
+            for (int i = 0; i < filesList.Count; i++)
+            {
+                var file = filesList[i];
+
+                manager.LoadFiles(file);
+
+                string msg;
+                if (manager.assetsFileList.Count > 0)
+                {
+                    yield return file;
+                    msg = $"Processed {Path.GetFileName(file)}";
+                }
+                else
+                {
+                    filesList.Remove(file);
+                    msg = $"Removed {Path.GetFileName(file)}, no assets found";
+                }
+                reportProgress?.Invoke(1, totalFiles, msg);
+
+                manager.Clear();
             }
         }
 
@@ -238,7 +282,32 @@ namespace AssetStudio
             }
         }
 
-        private static void DumpCABMap(string mapName)
+        private static void BuildCABMapParallel(string file, ref int collision)
+        {
+            var relativePath = Path.GetRelativePath(BaseFolder, file);
+
+            foreach (var assetsFile in assetsManager.assetsFileList)
+            {
+                if (tokenSource.IsCancellationRequested)
+                {
+                    Logger.Info("Building CABMap has been cancelled !!");
+                    return;
+                }
+
+                var entry = new Entry()
+                {
+                    Path = relativePath,
+                    Offset = assetsFile.offset,
+                    Dependencies = assetsFile.m_Externals.Select(x => x.fileName).ToList()
+                };
+
+                if (!CABMap.TryAdd(assetsFile.fileName, entry))
+                {
+                    Interlocked.Increment(ref collision);
+                }
+            }
+        }
+        public static void DumpCABMap(string mapName)
         {
             CABMap = CABMap.OrderBy(pair => pair.Key).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
             var outputFile = Path.Combine(MapName, $"{mapName}.bin");
@@ -273,9 +342,10 @@ namespace AssetStudio
                 using var fs = File.OpenRead(Path.Combine(MapName, $"{mapName}.bin"));
                 using var reader = new BinaryReader(fs);
                 ParseCABMap(reader);
-                if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Initialized CABMap with {CABMap.Count} entries");
-			}
+                if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+                {
+                    Logger.Verbose($"Initialized CABMap with {CABMap.Count} entries");
+                }
                 Logger.Info($"Loaded {mapName} !!");
             }
             catch (Exception e)
@@ -297,9 +367,10 @@ namespace AssetStudio
                 using var fs = File.OpenRead(path);
                 using var reader = new BinaryReader(fs);
                 ParseCABMap(reader);
-                if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Initialized CABMap with {CABMap.Count} entries");
-			}
+                if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
+                {
+                    Logger.Verbose($"Initialized CABMap with {CABMap.Count} entries");
+                }
                 Logger.Info($"Loaded {mapName} !!");
             }
             catch (Exception e)
@@ -334,7 +405,7 @@ namespace AssetStudio
                 };
                 CABMap.Add(cab, entry);
             }
-        } 
+        }
 
         public static async Task BuildAssetMap(string[] files, string mapName, Game game, string savePath, ExportListType exportListType, ClassIDType[] typeFilters = null, Regex[] nameFilters = null, Regex[] containerFilters = null)
         {
@@ -356,7 +427,7 @@ namespace AssetStudio
 
                 await ExportAssetsMap(assets, game, mapName, savePath, exportListType);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Warning($"AssetMap was not build, {e}");
             }
@@ -509,11 +580,12 @@ namespace AssetStudio
                             Container = ""
                         };
                         tmp.Name = gameObject.m_Name;
-                        if (!objectAssetItemDic.ContainsKey(gameObject)){
+                        if (!objectAssetItemDic.ContainsKey(gameObject))
+                        {
                             objectAssetItemDic.Add(gameObject, tmp);
                             matches.Add(tmp);
                         }
-                      
+
                     }
                 }
             }
@@ -557,7 +629,7 @@ namespace AssetStudio
                     {
                         using var stream = File.OpenRead(mapName);
                         var assetMap = MessagePackSerializer.Deserialize<AssetMap>(stream, MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray));
-                        foreach(var entry in assetMap.AssetEntries)
+                        foreach (var entry in assetMap.AssetEntries)
                         {
                             var isNameMatch = nameFilter.Length == 0 || nameFilter.Any(x => x.IsMatch(entry.Name));
                             var isContainerMatch = containerFilter.Length == 0 || containerFilter.Any(x => x.IsMatch(entry.Container));
@@ -637,7 +709,7 @@ namespace AssetStudio
             return matches.ToArray();
         }
 
-        private static void UpdateContainers(List<AssetEntry> assets, Game game)
+        public static void UpdateContainers(List<AssetEntry> assets, Game game)
         {
             if (game.Type.IsGISubGroup() && assets.Count > 0)
             {
@@ -666,7 +738,7 @@ namespace AssetStudio
             }
         }
 
-        private static Task ExportAssetsMap(List<AssetEntry> toExportAssets, Game game, string name, string savePath, ExportListType exportListType)
+        public static Task ExportAssetsMap(List<AssetEntry> toExportAssets, Game game, string name, string savePath, ExportListType exportListType)
         {
             return Task.Run(() =>
             {
@@ -741,7 +813,8 @@ namespace AssetStudio
             BaseFolder = baseFolder;
             assetsManager.Game = game;
             var assets = new List<AssetEntry>();
-            foreach(var file in LoadFiles(files))
+            assetsManager.paritial = AssetsHelper.paritial;
+            foreach (var file in LoadFiles(files))
             {
                 BuildCABMap(file, ref collision);
                 BuildAssetMap(file, assets, typeFilters, nameFilters, containerFilters);
@@ -759,4 +832,4 @@ namespace AssetStudio
 
         }
     }
-}
+    }

@@ -27,7 +27,7 @@ namespace AssetStudio
         internal HashSet<string> importFilesHash = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         internal HashSet<string> noexistFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         internal HashSet<string> assetsFileListHash = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
+        public bool paritial = false;
         public Dictionary<Object, List<long>> PathIDsByObjectCache { get; set; }
         public Dictionary<long, List<long>> PathIdToPptrs { get; set; } = new();
         public void AddPathId(long key, long value)
@@ -262,13 +262,13 @@ namespace AssetStudio
 
         private void LoadBundleFile(FileReader reader, string originalPath = null, long originalOffset = 0, bool log = true)
         {
-            if (log)
+            if (!this.Silent && log) 
             {
                 Logger.Info("Loading " + reader.FullPath);
             }
             try
             {
-                var bundleFile = new BundleFile(reader, Game);
+                var bundleFile = new BundleFile(reader, Game,this.paritial);
                 foreach (var file in bundleFile.fileList)
                 {
                     var dummyPath = Path.Combine(Path.GetDirectoryName(reader.FullPath), file.fileName);
@@ -660,8 +660,10 @@ namespace AssetStudio
 
         private void ReadAssets()
         {
-            Logger.Info("Read assets...");
-
+            if (!this.Silent)
+            {
+                Logger.Info("Read assets...");
+            }
             var progressCount = assetsFileList.Sum(x => x.m_Objects.Count);
             int i = 0;
             Progress.Reset();
@@ -732,8 +734,10 @@ namespace AssetStudio
 
         private void ProcessAssets()
         {
-            Logger.Info("Process Assets...");
-
+            if (!this.Silent)
+            {
+                Logger.Info("Process Assets...");
+            }
             foreach (var assetsFile in assetsFileList)
             {
                 foreach (var obj in assetsFile.Objects)

@@ -112,10 +112,14 @@ namespace AssetStudio.GUI
             miscToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             MapNameComboBox = new System.Windows.Forms.ToolStripComboBox();
             buildMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            partialLoad = new System.Windows.Forms.ToolStripMenuItem();
             buildBothToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            buildBothParallelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            buildBothParallelTestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             clearMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             assetMapNameTextBox = new System.Windows.Forms.ToolStripTextBox();
+            assetExtTextBox = new System.Windows.Forms.ToolStripTextBox();
             buildAssetMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             assetMapTypeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
@@ -296,6 +300,15 @@ namespace AssetStudio.GUI
             multiBundle.Text = "Load Multiple Bundles";
             multiBundle.ToolTipText = "Check this option will load all bundles in one file";
             multiBundle.CheckedChanged += multiBundle_CheckedChanged;
+            // 
+            // partialLoad
+            // 
+            partialLoad.CheckOnClick = true;
+            partialLoad.Name = "multiBundle";
+            partialLoad.Size = new System.Drawing.Size(225, 22);
+            partialLoad.Text = "Dont process full bundle";
+            partialLoad.ToolTipText = "should make assetmap faster or break it completely!";
+            partialLoad.CheckedChanged += partialLoad_CheckedChanged;
             // 
             // toolStripSeparator10
             // 
@@ -754,7 +767,7 @@ namespace AssetStudio.GUI
             // 
             // miscToolStripMenuItem
             // 
-            miscToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { MapNameComboBox, buildMapToolStripMenuItem, buildBothToolStripMenuItem, clearMapToolStripMenuItem, toolStripSeparator7, assetMapNameTextBox, buildAssetMapToolStripMenuItem, assetMapTypeMenuItem, toolStripSeparator8, loadAIToolStripMenuItem, loadCABMapToolStripMenuItem, assetBrowserToolStripMenuItem });
+            miscToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { MapNameComboBox, buildMapToolStripMenuItem, buildBothToolStripMenuItem, buildBothParallelToolStripMenuItem, buildBothParallelTestToolStripMenuItem,clearMapToolStripMenuItem, partialLoad, toolStripSeparator7, assetMapNameTextBox, buildAssetMapToolStripMenuItem, assetExtTextBox, assetMapTypeMenuItem, toolStripSeparator8, loadAIToolStripMenuItem, loadCABMapToolStripMenuItem, assetBrowserToolStripMenuItem });
             miscToolStripMenuItem.Name = "miscToolStripMenuItem";
             miscToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             miscToolStripMenuItem.Text = "Misc.";
@@ -780,6 +793,20 @@ namespace AssetStudio.GUI
             buildBothToolStripMenuItem.Text = "Build Both";
             buildBothToolStripMenuItem.Click += buildBothToolStripMenuItem_Click;
             // 
+            // buildBothToolStripMenuItem
+            // 
+            buildBothParallelToolStripMenuItem.Name = "buildBothToolStripMenuItem";
+            buildBothParallelToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            buildBothParallelToolStripMenuItem.Text = "test1";
+            buildBothParallelToolStripMenuItem.Click += buildBothParallelToolStripMenuItem_Click;
+            // 
+            // buildBothToolStripMenuItem
+            // 
+            buildBothParallelTestToolStripMenuItem.Name = "buildBothToolStripMenuItem";
+            buildBothParallelTestToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            buildBothParallelTestToolStripMenuItem.Text = "test2";
+            buildBothParallelTestToolStripMenuItem.Click += buildBothParallelTestToolStripMenuItem_Click;
+            // 
             // clearMapToolStripMenuItem
             // 
             clearMapToolStripMenuItem.Name = "clearMapToolStripMenuItem";
@@ -797,6 +824,13 @@ namespace AssetStudio.GUI
             assetMapNameTextBox.Name = "assetMapNameTextBox";
             assetMapNameTextBox.Size = new System.Drawing.Size(100, 23);
             assetMapNameTextBox.ToolTipText = "Enter name of AssetMap here";
+            // 
+            // assetExtTextBox
+            // 
+            assetExtTextBox.Name = "assetExtTextBox";
+            assetExtTextBox.Size = new System.Drawing.Size(100, 23);
+            assetExtTextBox.ToolTipText = "Enter file extension";
+            assetExtTextBox.KeyDown += assetExtTextBox_KeyDown;
             // 
             // buildAssetMapToolStripMenuItem
             // 
@@ -1542,6 +1576,8 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.ToolStripMenuItem miscToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem assetHelpersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem buildBothToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem buildBothParallelToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem buildBothParallelTestToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem buildAssetMapToolStripMenuItem;
         private System.Windows.Forms.ToolStripComboBox MapNameComboBox;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
@@ -1555,9 +1591,11 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.ToolStripMenuItem loadAIToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearConsoleToolStripMenuItem;
         private System.Windows.Forms.ToolStripTextBox assetMapNameTextBox;
+        private System.Windows.Forms.ToolStripTextBox assetExtTextBox;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
         private System.Windows.Forms.ToolStripMenuItem buildMapToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem partialLoad;
         private System.Windows.Forms.ToolStripMenuItem assetBrowserToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripMenuItem exportSelectedNodessplitToolStripMenuItem;
