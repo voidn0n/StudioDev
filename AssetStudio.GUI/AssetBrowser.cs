@@ -392,6 +392,12 @@ namespace AssetStudio.GUI
         {
             ResourceMap.Clear();
             assetDataGridView.Rows.Clear();
+            assetDataGridView.Columns.Clear();
+            _assetEntries.Clear();
+            Logger.Info($"Total AssetEntries.. {_assetEntries.Count()}");
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
         }
     }
 }
