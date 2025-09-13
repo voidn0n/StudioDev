@@ -46,6 +46,7 @@ namespace AssetStudio
 
     public class BundleFile
     {
+        private static readonly Regex CabRegex = new(@"^CAB-[A-Fa-f0-9]{32}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         public class Header
         {
             public string signature;
@@ -150,7 +151,7 @@ namespace AssetStudio
                     ReadBlocksInfoAndDirectory(reader);
                     if (partitial)
                     {
-                        var m_tmpBLocks = FilterBlocks(m_BlocksInfo, m_DirectoryInfo[0]);
+                        var m_tmpBLocks = FilterBlocks(m_BlocksInfo, m_DirectoryInfo.Find(e=>CabRegex.IsMatch(e.path)));
                         m_BlocksInfo = m_tmpBLocks;
                     }
                     using (var blocksStream = CreateBlocksStream(reader.FullPath))

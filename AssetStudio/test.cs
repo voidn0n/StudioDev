@@ -51,7 +51,7 @@ namespace AssetStudio
                     int localCollisions = 0;
                     var localAssets = new List<AssetEntry>();
                     var manager = new AssetsManager() { Game = game, Silent = true, SkipProcess = true, ResolveDependencies = false, paritial = AssetsHelper.paritial };
-                    var fileStopwatch = Stopwatch.StartNew();
+                    //var fileStopwatch = Stopwatch.StartNew();
                     var loadedFiles = AssetsHelper.LoadFiles(slice, manager, totalFiles, (processed, total, message) =>
                     {
                         int current = Interlocked.Add(ref totalFilesProcessed, processed);
@@ -348,9 +348,14 @@ namespace AssetStudio
                                 exportable = ClassIDType.IndexObject.CanExport();
                                 break;
                             case ClassIDType.MonoBehaviour when ClassIDType.MonoBehaviour.CanParse():
-                                var mono = new MonoBehaviour(objectReader);
-                                asset.Name = String.IsNullOrEmpty(mono.Name) ? objectReader.type.ToString() : mono.Name;
+                                asset.Name = objectReader.type.ToString();
                                 exportable = ClassIDType.MonoBehaviour.CanExport();
+                                break;
+                            case ClassIDType.MonoScript when ClassIDType.MonoScript.CanParse():
+                                var mono_script = new MonoScript(objectReader);
+
+                                asset.Name = String.IsNullOrEmpty(mono_script.m_Name) ? objectReader.type.ToString() : mono_script.m_Name;
+                                exportable = ClassIDType.MonoScript.CanExport();
                                 break;
                             case ClassIDType.Font when ClassIDType.Font.CanExport():
                             case ClassIDType.Material when ClassIDType.Material.CanExport():
