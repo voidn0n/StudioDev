@@ -524,6 +524,11 @@ namespace AssetStudio
                                 asset.Name = "IndexObject";
                                 exportable = ClassIDType.IndexObject.CanExport();
                                 break;
+                            case ClassIDType.MonoBehaviour when ClassIDType.MonoBehaviour.CanParse():
+                                var mono = new MonoBehaviour(objectReader);
+                                asset.Name = String.IsNullOrEmpty(mono.Name) ? objectReader.type.ToString() : mono.Name;
+                                exportable = ClassIDType.MonoBehaviour.CanExport();
+                                break;
                             case ClassIDType.Font when ClassIDType.Font.CanExport():
                             case ClassIDType.Material when ClassIDType.Material.CanExport():
                             case ClassIDType.Texture when ClassIDType.Texture.CanExport():
