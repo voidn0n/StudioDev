@@ -1088,24 +1088,9 @@ namespace AssetStudio
                 var b = (byte)(key[i] ^ originalHeader[i]);
                 key[i] = b != originalHeader[i] ? b : originalHeader[i];
             }
-
             reader.Position = 0;
-            var data = reader.ReadBytes((int)reader.Remaining);
-            var size = Math.Min(data.Length, 0x8000);
-            for (int i = 0; i < size; i++)
-            {
-                data[i] ^= key[i % key.Length];
-            }
-
-            if (Logger.Flags.HasFlag(LoggerEvent.Verbose))
-            {
-                Logger.Verbose("Decrypted Girls Frontline file successfully !!");
-            }
-
-            MemoryStream ms = new();
-            ms.Write(data);
-            ms.Position = 0;
-            return new FileReader(reader.FullPath, ms);
+            var xorStream = new GF2Stream(reader.BaseStream,key,0x8000);
+            return new FileReader(reader.FullPath, xorStream);
         }
 
         public static FileReader DecryptReverse1999(FileReader reader)
