@@ -20,7 +20,6 @@ namespace AssetStudio.GUI
 
         private SortOrder _sortOrder;
         private DataGridViewColumn _sortedColumn;
-        public ResourceMap resourceMap;
 
         public AssetBrowser(MainForm form)
         {
@@ -28,7 +27,6 @@ namespace AssetStudio.GUI
             _parent = form;
             _filters = new Dictionary<string, Regex>();
             _assetEntries = new List<AssetEntry>();
-            resourceMap = new ResourceMap();
         }
 
         private async void loadAssetMap_Click(object sender, EventArgs e)
@@ -40,7 +38,7 @@ namespace AssetStudio.GUI
             {
                 var path = openFileDialog.FileName;
                 Logger.Info($"Loading AssetMap...");
-                await Task.Run(() => resourceMap.FromFile(path));
+                await Task.Run(() => ResourceMap.FromFile(path));
 
                 _sortedColumn = null;
 
@@ -53,7 +51,7 @@ namespace AssetStudio.GUI
                 }
 
                 _assetEntries.Clear();
-                _assetEntries.AddRange(resourceMap.GetEntries());
+                _assetEntries.AddRange(ResourceMap.GetEntries());
 
                 assetDataGridView.Columns.Clear();
                 assetDataGridView.Columns.AddRange(names.Select(x => new DataGridViewTextBoxColumn() { Name = x, HeaderText = x, SortMode = DataGridViewColumnSortMode.Programmatic }).ToArray());
@@ -64,20 +62,11 @@ namespace AssetStudio.GUI
                 assetDataGridView.Refresh();
             }
             loadAssetMap.Enabled = true;
-            _assetEntries.Clear();
         }
         private void clear_Click(object sender, EventArgs e)
         {
             Clear();
             Logger.Info($"Cleared !!");
-            resourceMap.Clear();
-            assetDataGridView.Rows.Clear();
-            assetDataGridView.Columns.Clear();
-            _assetEntries.Clear();
-            Logger.Info($"Total AssetEntries.. {_assetEntries.Count()}");
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
         }
         private void loadSelected_Click(object sender, EventArgs e)
         {
@@ -252,8 +241,7 @@ namespace AssetStudio.GUI
         private void FilterAssetDataGrid()
         {
             _assetEntries.Clear();
-
-            _assetEntries.AddRange(resourceMap.GetEntries().FindAll(x => x.Matches(_filters)));
+            _assetEntries.AddRange(ResourceMap.GetEntries().FindAll(x => x.Matches(_filters)));
 
             assetDataGridView.Rows.Clear();
             assetDataGridView.RowCount = _assetEntries.Count;
@@ -402,9 +390,8 @@ namespace AssetStudio.GUI
         }
         public void Clear()
         {
-            resourceMap.Clear();
+            ResourceMap.Clear();
             assetDataGridView.Rows.Clear();
-            assetDataGridView.Columns.Clear();
         }
     }
 }

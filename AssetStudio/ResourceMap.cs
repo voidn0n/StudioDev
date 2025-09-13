@@ -5,11 +5,11 @@ using System.IO;
 
 namespace AssetStudio
 {
-    public class ResourceMap
+    public static class ResourceMap
     {
-        private AssetMap Instance = new() { GameType = GameType.Normal, AssetEntries = new List<AssetEntry>() };
-        public  List<AssetEntry> GetEntries() => Instance.AssetEntries;
-        public  void FromFile(string path)
+        private static AssetMap Instance = new() { GameType = GameType.Normal, AssetEntries = new List<AssetEntry>() };
+        public static List<AssetEntry> GetEntries() => Instance.AssetEntries;
+        public static void FromFile(string path)
         {
             if (!string.IsNullOrEmpty(path))
             {
@@ -29,14 +29,10 @@ namespace AssetStudio
             }
         }
 
-        public void Clear()
+        public static void Clear()
         {
-            Instance = new AssetMap
-            {
-                GameType = GameType.Normal,
-                AssetEntries = new List<AssetEntry>()
-            };
-           
+            Instance.GameType = GameType.Normal;
+            Instance.AssetEntries = new List<AssetEntry>();
         }
     }
 }
