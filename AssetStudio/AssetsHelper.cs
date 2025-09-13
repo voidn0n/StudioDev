@@ -307,9 +307,14 @@ namespace AssetStudio
                 }
             }
         }
-        public static void DumpCABMap(string mapName)
+
+        public static void DumpCABMap(string mapName, ConcurrentDictionary<string, Entry> map = null)
         {
-            CABMap = CABMap.OrderBy(pair => pair.Key).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
+            if (map != null)
+            {
+                CABMap = map.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            }
+        CABMap = CABMap.OrderBy(pair => pair.Key).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
             var outputFile = Path.Combine(MapName, $"{mapName}.bin");
 
             Directory.CreateDirectory(Path.GetDirectoryName(outputFile));
@@ -524,14 +529,15 @@ namespace AssetStudio
                                 asset.Name = "IndexObject";
                                 exportable = ClassIDType.IndexObject.CanExport();
                                 break;
-                            case ClassIDType.MonoBehaviour when ClassIDType.MonoBehaviour.CanParse():                       
-                                asset.Name = objectReader.type.ToString();
+                            case ClassIDType.MonoBehaviour when ClassIDType.MonoBehaviour.CanParse():
+                               var mono = new MonoBehaviour(objectReader);
+                                asset.Name = String.IsNullOrEmpty(mono.Name) ? objectReader.type.ToString() : mono.Name;
                                 exportable = ClassIDType.MonoBehaviour.CanExport();
                                 break;
                             case ClassIDType.MonoScript when ClassIDType.MonoScript.CanParse():
                                 var mono_script = new MonoScript(objectReader);
 
-                                asset.Name = String.IsNullOrEmpty(mono_script.m_Name) ? objectReader.type.ToString() : mono_script.m_Name;
+                                asset.Name = String.IsNullOrEmpty(mono_script.Name) ? objectReader.type.ToString() : mono_script.Name;
                                 exportable = ClassIDType.MonoScript.CanExport();
                                 break;
                             case ClassIDType.Font when ClassIDType.Font.CanExport():

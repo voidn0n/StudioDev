@@ -96,7 +96,7 @@ namespace AssetStudio
                 sliceIndex++;
             }
             AssetsHelper.UpdateContainers(finalAssets, game);
-            AssetsHelper.DumpCABMap(mapName);
+            AssetsHelper.DumpCABMap(mapName,AssetsHelperParallel.CABMap);
 
             Logger.Info($"Map built successfully! {totalCollisions} collisions found");
 
@@ -348,7 +348,8 @@ namespace AssetStudio
                                 exportable = ClassIDType.IndexObject.CanExport();
                                 break;
                             case ClassIDType.MonoBehaviour when ClassIDType.MonoBehaviour.CanParse():
-                                asset.Name = objectReader.type.ToString();
+                                var mono = new MonoBehaviour(objectReader);
+                                asset.Name = String.IsNullOrEmpty(mono.Name) ? objectReader.type.ToString() : mono.Name;
                                 exportable = ClassIDType.MonoBehaviour.CanExport();
                                 break;
                             case ClassIDType.MonoScript when ClassIDType.MonoScript.CanParse():

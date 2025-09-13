@@ -96,7 +96,15 @@ namespace AssetStudio
             //use a for loop because list size can change
             for (var i = 0; i < importFiles.Count; i++)
             {
-                LoadFile(importFiles[i]);
+                try
+                {
+                    LoadFile(importFiles[i]);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Error loading file {importFiles[i]}: {ex.Message}");
+                    continue; // skip this file and continue with the next
+                }
                 Progress.Report(i + 1, importFiles.Count);
                 if (tokenSource.IsCancellationRequested)
                 {
