@@ -1,28 +1,29 @@
 ﻿using MessagePack;
+using SevenZip;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-
 namespace AssetStudio
 {
     public static class StringCache
     {
-        private static readonly Dictionary<string, string> _cache = new Dictionary<string, string>();
+        private static readonly Dictionary<uint, string> _cache = new Dictionary<uint, string>();
 
         public static string Get(string value)
         {
             if (value == null) return null;
 
-            if (_cache.TryGetValue(value, out var cached))
-            {
-                return cached;
-            }
+            uint key = CRC.CalculateDigestUTF8(value);
 
-            _cache[value] = value;
+            if (_cache.TryGetValue(key, out var cached))
+                return cached;
+
+            _cache[key] = value;
             return value;
         }
     }
+ 
     [MessagePackObject]
     public record AssetMap
     {
