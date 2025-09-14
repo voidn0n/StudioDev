@@ -1576,6 +1576,40 @@ namespace AssetStudio
             ms.Position = 0;
             return new FileReader(reader.FullPath, ms);
         }
+        public static FileReader DecryptCardCaptorSakuraTEST(FileReader reader)
+        {
+            //credits Goku,benwong01f611
+            var ccStream = new CCSakuraStream(reader.BaseStream);
+            //var data = reader.ReadBytes((int)reader.Length);
+            //int length = data.Length;
+
+            //int BIT_COUNT_LOCAL = length >> 1;
+            //int BIT_COUNT = 1024;
+            //if (BIT_COUNT_LOCAL > BIT_COUNT)
+            //{
+            //    BIT_COUNT_LOCAL = BIT_COUNT;
+            //}
+
+            //int leftByte = 0;
+            //int rightByte = length - 1;
+
+            //while (leftByte < length)
+            //{
+            //    data[leftByte] ^= data[rightByte];
+            //    rightByte--;
+            //    leftByte++;
+
+            //    if (leftByte >= BIT_COUNT_LOCAL)
+            //    {
+            //        break;
+            //    }
+            //}
+
+            //MemoryStream ms = new();
+            //ms.Write(data);
+            //ms.Position = 0;
+            return new FileReader(reader.FullPath, ccStream);
+        }
         public static FileReader DecryptProjectNet(FileReader reader)
         {
             var keyBytes = Encoding.UTF8.GetBytes("sdfsdfsdfweerterewwr9ikieioerf[ssfdkjnbnf7t7tt6jfdi354k5kdsdfjksandfgjssijewoowjfsdfoijsdfjsd===-009kskdkdsjsdlkdldlfd[r[hsgswmnckof");

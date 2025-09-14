@@ -149,7 +149,7 @@ namespace AssetStudio
                         ReadUnityCN(reader);
                     }
                     ReadBlocksInfoAndDirectory(reader);
-                    if (partitial)
+                    if (partitial||AssetsHelper.paritial)
                     {
                         var m_tmpBLocks = FilterBlocks(m_BlocksInfo, m_DirectoryInfo.Find(e=>CabRegex.IsMatch(e.path)));
                         m_BlocksInfo = m_tmpBLocks;

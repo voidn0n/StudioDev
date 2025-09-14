@@ -26,6 +26,9 @@ namespace AssetStudio
                     return;
                 }
                 Logger.Info("Loaded !!");
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
             }
         }
 

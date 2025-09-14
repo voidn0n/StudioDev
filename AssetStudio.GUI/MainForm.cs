@@ -1968,7 +1968,10 @@ namespace AssetStudio.GUI
 
                 if (assetsManager.PathIDsByObjectCache == null)
                 {
-                    var dumpPathIDRegex = new Regex(@"_PathID\s*=\s*(-?\d+)", RegexOptions.Compiled);
+                    var dumpPathIDRegex = new Regex(
+@"(?:_PathID\s*=\s*|""m_PathID""\s*:\s*)(-?\d+)",
+RegexOptions.Compiled
+);
                     assetsManager.PathIDsByObjectCache = assetsManager.assetsFileList
           .SelectMany(file => file.ObjectsDic.Values)
           .Where(obj => obj.type.CanParse())
@@ -1986,7 +1989,7 @@ namespace AssetStudio.GUI
               catch
               {
                   Logger.Info($"FAILED pathid lookup (disable type parse) {obj.Name} {obj.m_PathID} {obj.type}");
-                  return null; // Skip this object
+                  return null; 
               }
           })
           .Where(x => x != null && x.ids.Count > 0)

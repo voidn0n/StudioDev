@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
+using System.Linq;
 
 namespace AssetStudio
 {
@@ -49,6 +51,36 @@ namespace AssetStudio
             while (pos < _length && i < read)
             {
                 buffer[i++] ^= _key[pos++ % _key.Length];
+            }
+
+            return read;
+        }
+    }
+    public class CCSakuraStream : OffsetStream
+    {
+        private readonly int _size;
+        private readonly byte[] _key;
+        public CCSakuraStream(Stream stream) : base(stream, 0)
+        {
+            var size = (int)Math.Min(Length / 2, 0x400);
+
+            var pos = Position;
+            Seek(-size, SeekOrigin.End);
+
+            _key = new byte[size];
+            base.Read(_key, 0, size);
+
+            Position = pos;
+        }
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            var pos = Position;
+            var read = base.Read(buffer, offset, count);
+
+            int i = offset;
+            while (pos < _key.Length && i < read)
+            {
+                buffer[i++] ^= _key[((_key.Length - 1) - pos++) % _key.Length];
             }
 
             return read;

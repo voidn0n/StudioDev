@@ -6,6 +6,23 @@ using System.Text.RegularExpressions;
 
 namespace AssetStudio
 {
+    public static class StringCache
+    {
+        private static readonly Dictionary<string, string> _cache = new Dictionary<string, string>();
+
+        public static string Get(string value)
+        {
+            if (value == null) return null;
+
+            if (_cache.TryGetValue(value, out var cached))
+            {
+                return cached;
+            }
+
+            _cache[value] = value;
+            return value;
+        }
+    }
     [MessagePackObject]
     public record AssetMap
     {
@@ -17,14 +34,34 @@ namespace AssetStudio
     [MessagePackObject]
     public record AssetEntry
     {
+        private string _name;
+        private string _container;
+        private string _source;
+
         [Key(0)]
-        public string Name { get; set; }
+        public string Name
+        {
+            get => _name;
+            set => _name = StringCache.Get(value);
+        }
+
         [Key(1)]
-        public string Container { get; set; }
+        public string Container
+        {
+            get => _container;
+            set => _container = StringCache.Get(value);
+        }
+
         [Key(2)]
-        public string Source { get; set; }
+        public string Source
+        {
+            get => _source;
+            set => _source = StringCache.Get(value);
+        }
+
         [Key(3)]
         public long PathID { get; set; }
+
         [Key(4)]
         public ClassIDType Type { get; set; }
 
