@@ -379,35 +379,42 @@ namespace AssetStudio
 
 
                         if (obj != null)
-                            objectAssetItemDic[obj] = asset;
-
+                        {
+                            objectAssetItemDic.Add(obj, asset);
+                            assetsFile.AddObject(obj);
+                        }
                         if (exportable)
                             matches.Add(asset);
                     }
                     catch (Exception e)
                     {
-                        Logger.Error($"Unable to load object\nAssets {assetsFile.fileName}\nType {objectReader?.type}\nPathID {objInfo.m_PathID}\n{e}");
+                        Logger.Error($"Unable to load assetmap for \n{assetsFile.fileName}\nType {objectReader?.type}\nPathID {objInfo.m_PathID}\n{e}");
                     }
                 }
             }
 
 
-            foreach (var (pptr, asset) in animators)
+            foreach ((var pptr, var asset) in animators)
             {
                 if (pptr.TryGet<GameObject>(out var gameObject))
                 {
                     asset.Name = gameObject.m_Name;
-                    if (!objectAssetItemDic.ContainsKey(gameObject))
+                    if (ClassIDType.GameObject.CanExport())
                     {
-                        var tmp = new AssetEntry
+                        var tmp = new AssetEntry()
                         {
                             Source = file,
                             PathID = gameObject.m_PathID,
                             Type = gameObject.type,
-                            Name = gameObject.m_Name
+                            Container = ""
                         };
-                        objectAssetItemDic[gameObject] = tmp;
-                        matches.Add(tmp);
+                        tmp.Name = gameObject.m_Name;
+                        if (!objectAssetItemDic.ContainsKey(gameObject))
+                        {
+                            objectAssetItemDic.Add(gameObject, tmp);
+                            matches.Add(tmp);
+                        }
+
                     }
                 }
             }
@@ -429,13 +436,13 @@ namespace AssetStudio
                 }
             }
 
-
-            foreach (var (pptr, container) in containers)
+            foreach ((var pptr, var container) in containers)
             {
-                if (pptr.TryGet(out var obj) && objectAssetItemDic.TryGetValue(obj, out var asset))
-                    asset.Container = container;
+                if (pptr.TryGet(out var obj))
+                {
+                    objectAssetItemDic[obj].Container = container;
+                }
             }
-
 
             lock (assets)
             {

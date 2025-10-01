@@ -1,6 +1,7 @@
 ﻿using MessagePack;
 using SevenZip;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -8,7 +9,7 @@ namespace AssetStudio
 {
     public static class StringCache
     {
-        private static readonly Dictionary<uint, string> _cache = new Dictionary<uint, string>();
+        private static readonly ConcurrentDictionary<uint, string> _cache = new ConcurrentDictionary<uint, string>();
 
         public static string Get(string value)
         {
