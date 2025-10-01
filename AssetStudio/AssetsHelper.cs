@@ -20,7 +20,7 @@ namespace AssetStudio
     public static class AssetsHelper
     {
         public const string MapName = "Maps";
-
+        public static bool forceLoad = false;
         public static bool Minimal = true;
         public static CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -166,6 +166,19 @@ namespace AssetStudio
             {
                 Logger.Info("Resolving Dependencies...");
                 files = ProcessFiles(files);
+            }
+            return files;
+        }
+        public static string[] ProcessExtraFiles(string[] files)
+        {
+            if (File.Exists("additional_files.txt") && true)
+            {
+                string[] lines = File.ReadAllLines("additional_files.txt");
+                lines = (from f in lines.Distinct()
+                         orderby f
+                         select f).ToArray();
+                files = files.Concat(lines).ToArray();
+                Logger.Info($"forcing load of {lines.Count()} bundles");
             }
             return files;
         }

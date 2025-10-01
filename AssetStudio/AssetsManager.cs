@@ -50,6 +50,10 @@ namespace AssetStudio
             var path = Path.GetDirectoryName(Path.GetFullPath(files[0]));
             MergeSplitAssets(path);
             var toReadFile = ProcessingSplitFiles(files.ToList());
+            if (AssetsHelper.forceLoad)
+            {
+                toReadFile = AssetsHelper.ProcessExtraFiles(toReadFile);
+            }
             if (ResolveDependencies)
                 toReadFile = AssetsHelper.ProcessDependencies(toReadFile);
             Load(toReadFile);
@@ -60,6 +64,8 @@ namespace AssetStudio
                 Progress.Silent = false;
             }
         }
+
+    
 
         public void LoadFolder(string path)
         {

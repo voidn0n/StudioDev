@@ -481,7 +481,20 @@ namespace AssetStudio.GUI.Properties {
                 this["allowDuplicates"] = value;
             }
         }
-        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool forceLoadBundle
+        {
+            get
+            {
+                return ((bool)(this["forceLoadBundle"]));
+            }
+            set
+            {
+                this["forceLoadBundle"] = value;
+            }
+        }
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("30")]

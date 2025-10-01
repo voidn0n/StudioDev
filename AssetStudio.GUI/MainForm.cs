@@ -2226,6 +2226,12 @@ RegexOptions.Compiled
             Properties.Settings.Default.allowDuplicates = allowDuplicates.Checked;
             Properties.Settings.Default.Save();
         }
+        private void forceLoadBundle_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.forceLoadBundle = forceLoadBundle.Checked;
+            AssetStudio.AssetsHelper.forceLoad = forceLoadBundle.Checked;
+            Properties.Settings.Default.Save();
+        }
         private void skipContainer_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.skipContainer = skipContainer.Checked;

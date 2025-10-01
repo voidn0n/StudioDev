@@ -54,6 +54,7 @@ namespace AssetStudio.GUI
             displayInfo = new System.Windows.Forms.ToolStripMenuItem();
             enableResolveDependencies = new System.Windows.Forms.ToolStripMenuItem();
             allowDuplicates = new System.Windows.Forms.ToolStripMenuItem();
+            forceLoadBundle = new System.Windows.Forms.ToolStripMenuItem();
             skipContainer = new System.Windows.Forms.ToolStripMenuItem();
             toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
             toolStripMenuItem14 = new System.Windows.Forms.ToolStripMenuItem();
@@ -278,7 +279,7 @@ namespace AssetStudio.GUI
             // 
             // optionsToolStripMenuItem
             // 
-            optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { displayAll, multiBundle,toolStripSeparator10, enablePreview, enableModelPreview, modelsOnly, toolStripSeparator11, displayInfo, enableResolveDependencies, allowDuplicates, skipContainer, toolStripSeparator12, toolStripMenuItem14, specifyUnityCNKey, toolStripSeparator13, toolStripMenuItem18, toolStripMenuItem19, showExpOpt });
+            optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { displayAll, multiBundle,toolStripSeparator10, enablePreview, enableModelPreview, modelsOnly, toolStripSeparator11, displayInfo, enableResolveDependencies, allowDuplicates, forceLoadBundle, skipContainer, toolStripSeparator12, toolStripMenuItem14, specifyUnityCNKey, toolStripSeparator13, toolStripMenuItem18, toolStripMenuItem19, showExpOpt });
             optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             optionsToolStripMenuItem.Text = "Options";
@@ -379,6 +380,15 @@ namespace AssetStudio.GUI
             allowDuplicates.Text = "Allow duplicates";
             allowDuplicates.ToolTipText = "Toggle the behaviour of exporting assets.\r\nEnable to allow assets with duplicate names to be exported.";
             allowDuplicates.CheckedChanged += allowDuplicates_CheckedChanged;
+            // 
+            // forceLoadBundle
+            // 
+            forceLoadBundle.CheckOnClick = true;
+            forceLoadBundle.Name = "forceLoadBundle";
+            forceLoadBundle.Size = new System.Drawing.Size(225, 22);
+            forceLoadBundle.Text = "forceLoadBundles";
+            forceLoadBundle.ToolTipText = "forceLoadBundles in additional_files.txt file";
+            forceLoadBundle.CheckedChanged += forceLoadBundle_CheckedChanged;
             // 
             // skipContainer
             // 
@@ -1615,6 +1625,8 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.ToolStripMenuItem assetMapTypeMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadCABMapToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem allowDuplicates;
+        private System.Windows.Forms.ToolStripMenuItem forceLoadBundle;
+
     }
 }
 
