@@ -807,7 +807,8 @@ namespace AssetStudio.GUI
             // 
             buildBothParallelToolStripMenuItem.Name = "buildBothToolStripMenuItem";
             buildBothParallelToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            buildBothParallelToolStripMenuItem.Text = "test1";
+            buildBothParallelToolStripMenuItem.Text = "BuildBothparallel";
+            buildBothParallelToolStripMenuItem.ToolTipText = "Experimental";
             buildBothParallelToolStripMenuItem.Click += buildBothParallelToolStripMenuItem_Click;
             // 
             // buildBothToolStripMenuItem
