@@ -1151,10 +1151,19 @@ namespace AssetStudio
                     {
                         for (int i = 1; ; i++)
                         {
+
                             var name = m_Texture2D.m_Name + $" ({i}){ext}";
+                            if (m_Texture2D.m_Name == "RampMap_Linear_RGBAHalf")
+                            {
+                                name = m_Texture2D.m_Name + "_" + m_Texture2D.m_PathID.ToString() + ext;
+                            }
+
+                            
                             if (ImportedHelpers.FindTexture(name, TextureList) == null)
                             {
                                 texture.Name = name;
+                              
+                                
                                 textureNameDictionary.Add(m_Texture2D, name);
                                 break;
                             }
@@ -1163,6 +1172,10 @@ namespace AssetStudio
                     else
                     {
                         texture.Name = m_Texture2D.m_Name + ext;
+                        if (m_Texture2D.m_Name == "RampMap_Linear_RGBAHalf")
+                        {
+                            texture.Name = m_Texture2D.m_Name + "_" + m_Texture2D.m_PathID.ToString() + ext;
+                        }
                         textureNameDictionary.Add(m_Texture2D, texture.Name);
                     }
 
