@@ -12,7 +12,7 @@ namespace AssetStudio.GUI.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.12.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -325,7 +325,7 @@ namespace AssetStudio.GUI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
         public int selectedGame {
             get {
                 return ((int)(this["selectedGame"]));
@@ -361,7 +361,7 @@ namespace AssetStudio.GUI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool collectAnimations {
             get {
                 return ((bool)(this["collectAnimations"]));
@@ -481,20 +481,7 @@ namespace AssetStudio.GUI.Properties {
                 this["allowDuplicates"] = value;
             }
         }
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool forceLoadBundle
-        {
-            get
-            {
-                return ((bool)(this["forceLoadBundle"]));
-            }
-            set
-            {
-                this["forceLoadBundle"] = value;
-            }
-        }
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("30")]
@@ -509,7 +496,7 @@ namespace AssetStudio.GUI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"{""Animation"":{""Item1"":true,""Item2"":false},""AnimationClip"":{""Item1"":true,""Item2"":true},""Animator"":{""Item1"":true,""Item2"":true},""AnimatorController"":{""Item1"":true,""Item2"":false},""AnimatorOverrideController"":{""Item1"":true,""Item2"":false},""AssetBundle"":{""Item1"":true,""Item2"":false},""AudioClip"":{""Item1"":true,""Item2"":true},""Avatar"":{""Item1"":true,""Item2"":false},""Font"":{""Item1"":true,""Item2"":true},""GameObject"":{""Item1"":true,""Item2"":false},""IndexObject"":{""Item1"":true,""Item2"":false},""Material"":{""Item1"":true,""Item2"":true},""Mesh"":{""Item1"":true,""Item2"":true},""MeshFilter"":{""Item1"":true,""Item2"":false},""MeshRenderer"":{""Item1"":true,""Item2"":false},""MiHoYoBinData"":{""Item1"":true,""Item2"":true},""MonoBehaviour"":{""Item1"":true,""Item2"":true},""MonoScript"":{""Item1"":true,""Item2"":false},""MovieTexture"":{""Item1"":true,""Item2"":true},""PlayerSettings"":{""Item1"":true,""Item2"":false},""RectTransform"":{""Item1"":true,""Item2"":false},""Shader"":{""Item1"":true,""Item2"":true},""SkinnedMeshRenderer"":{""Item1"":true,""Item2"":false},""Sprite"":{""Item1"":true,""Item2"":true},""SpriteAtlas"":{""Item1"":true,""Item2"":false},""TextAsset"":{""Item1"":true,""Item2"":true},""Texture2D"":{""Item1"":true,""Item2"":true},""Transform"":{""Item1"":true,""Item2"":false},""VideoClip"":{""Item1"":true,""Item2"":true},""ResourceManager"":{""Item1"":true,""Item2"":false}}")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"{""Animation"":{""Item1"":true,""Item2"":false},""AnimationClip"":{""Item1"":true,""Item2"":true},""Animator"":{""Item1"":true,""Item2"":true},""AnimatorController"":{""Item1"":true,""Item2"":false},""AnimatorOverrideController"":{""Item1"":true,""Item2"":false},""AssetBundle"":{""Item1"":true,""Item2"":false},""AudioClip"":{""Item1"":true,""Item2"":true},""Avatar"":{""Item1"":true,""Item2"":false},""Font"":{""Item1"":true,""Item2"":true},""GameObject"":{""Item1"":true,""Item2"":false},""IndexObject"":{""Item1"":true,""Item2"":false},""Material"":{""Item1"":true,""Item2"":true},""Mesh"":{""Item1"":true,""Item2"":true},""MeshFilter"":{""Item1"":true,""Item2"":false},""MeshRenderer"":{""Item1"":true,""Item2"":false},""MiHoYoBinData"":{""Item1"":true,""Item2"":true},""MonoBehaviour"":{""Item1"":true,""Item2"":true},""MonoScript"":{""Item1"":true,""Item2"":true},""MovieTexture"":{""Item1"":true,""Item2"":true},""PlayerSettings"":{""Item1"":true,""Item2"":false},""RectTransform"":{""Item1"":true,""Item2"":false},""Shader"":{""Item1"":true,""Item2"":true},""SkinnedMeshRenderer"":{""Item1"":true,""Item2"":false},""Sprite"":{""Item1"":true,""Item2"":true},""SpriteAtlas"":{""Item1"":true,""Item2"":false},""TextAsset"":{""Item1"":true,""Item2"":true},""Texture2D"":{""Item1"":true,""Item2"":true},""Transform"":{""Item1"":true,""Item2"":false},""VideoClip"":{""Item1"":true,""Item2"":true},""ResourceManager"":{""Item1"":true,""Item2"":false}}")]
         public string types {
             get {
                 return ((string)(this["types"]));
@@ -521,7 +508,7 @@ namespace AssetStudio.GUI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{}")]
+        [global::System.Configuration.DefaultSettingValueAttribute("{\"_BaseMap\":0,\"_MainTex\":0}")]
         public string texs {
             get {
                 return ((string)(this["texs"]));
@@ -540,6 +527,18 @@ namespace AssetStudio.GUI.Properties {
             }
             set {
                 this["exportMaterials"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool forceLoadBundle {
+            get {
+                return ((bool)(this["forceLoadBundle"]));
+            }
+            set {
+                this["forceLoadBundle"] = value;
             }
         }
     }
