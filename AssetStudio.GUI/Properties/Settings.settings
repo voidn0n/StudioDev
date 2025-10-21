@@ -2,15 +2,12 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AssetStudio.GUI.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="displayAll" Type="System.Boolean" Scope="User">
+    <Setting Name="multiBundle" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-       <Setting Name="multiBundle" Type="System.Boolean" Scope="User">
+    <Setting Name="partialLoad" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-	  <Setting Name="partialLoad" Type="System.Boolean" Scope="User">
-		  <Value Profile="(Default)">False</Value>
-	</Setting>
     <Setting Name="enablePreview" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -55,9 +52,6 @@
     </Setting>
     <Setting Name="fbxFormat" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
-    </Setting>
-    <Setting Name="scaleFactor" Type="System.Decimal" Scope="User">
-      <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="exportBlendShape" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -119,17 +113,23 @@
     <Setting Name="loggerEventType" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">30</Value>
     </Setting>
-    <Setting Name="types" Type="System.String" Scope="User">
-      <Value Profile="(Default)">{"Animation":{"Item1":true,"Item2":false},"AnimationClip":{"Item1":true,"Item2":true},"Animator":{"Item1":true,"Item2":true},"AnimatorController":{"Item1":true,"Item2":false},"AnimatorOverrideController":{"Item1":true,"Item2":false},"AssetBundle":{"Item1":true,"Item2":false},"AudioClip":{"Item1":true,"Item2":true},"Avatar":{"Item1":true,"Item2":false},"Font":{"Item1":true,"Item2":true},"GameObject":{"Item1":true,"Item2":false},"IndexObject":{"Item1":true,"Item2":false},"Material":{"Item1":true,"Item2":true},"Mesh":{"Item1":true,"Item2":true},"MeshFilter":{"Item1":true,"Item2":false},"MeshRenderer":{"Item1":true,"Item2":false},"MiHoYoBinData":{"Item1":true,"Item2":true},"MonoBehaviour":{"Item1":true,"Item2":true},"MonoScript":{"Item1":true,"Item2":true},"MovieTexture":{"Item1":true,"Item2":true},"PlayerSettings":{"Item1":true,"Item2":false},"RectTransform":{"Item1":true,"Item2":false},"Shader":{"Item1":true,"Item2":true},"SkinnedMeshRenderer":{"Item1":true,"Item2":false},"Sprite":{"Item1":true,"Item2":true},"SpriteAtlas":{"Item1":true,"Item2":false},"TextAsset":{"Item1":true,"Item2":true},"Texture2D":{"Item1":true,"Item2":true},"Transform":{"Item1":true,"Item2":false},"VideoClip":{"Item1":true,"Item2":true},"ResourceManager":{"Item1":true,"Item2":false}}</Value>
-    </Setting>
     <Setting Name="texs" Type="System.String" Scope="User">
       <Value Profile="(Default)">{"_BaseMap":0,"_MainTex":0}</Value>
     </Setting>
-    <Setting Name="exportMaterials" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="forceLoadBundle" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="displayAll" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="scaleFactor" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">100</Value>
+    </Setting>
+    <Setting Name="types" Type="System.String" Scope="User">
+      <Value Profile="(Default)">{"Animation":{"Item1":true,"Item2":false},"AnimationClip":{"Item1":true,"Item2":true},"Animator":{"Item1":true,"Item2":true},"AnimatorController":{"Item1":true,"Item2":false},"AnimatorOverrideController":{"Item1":true,"Item2":false},"AssetBundle":{"Item1":true,"Item2":false},"AudioClip":{"Item1":true,"Item2":true},"Avatar":{"Item1":true,"Item2":false},"Font":{"Item1":true,"Item2":true},"GameObject":{"Item1":true,"Item2":true},"IndexObject":{"Item1":true,"Item2":false},"Material":{"Item1":true,"Item2":true},"Mesh":{"Item1":true,"Item2":true},"MeshFilter":{"Item1":true,"Item2":false},"MeshRenderer":{"Item1":true,"Item2":false},"MiHoYoBinData":{"Item1":true,"Item2":true},"MonoBehaviour":{"Item1":true,"Item2":true},"MonoScript":{"Item1":true,"Item2":true},"MovieTexture":{"Item1":true,"Item2":true},"PlayerSettings":{"Item1":true,"Item2":false},"RectTransform":{"Item1":true,"Item2":false},"Shader":{"Item1":true,"Item2":true},"SkinnedMeshRenderer":{"Item1":true,"Item2":false},"Sprite":{"Item1":true,"Item2":true},"SpriteAtlas":{"Item1":true,"Item2":false},"TextAsset":{"Item1":true,"Item2":true},"Texture2D":{"Item1":true,"Item2":true},"Transform":{"Item1":true,"Item2":false},"VideoClip":{"Item1":true,"Item2":true},"ResourceManager":{"Item1":true,"Item2":false}}</Value>
+    </Setting>
+    <Setting Name="exportMaterials" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

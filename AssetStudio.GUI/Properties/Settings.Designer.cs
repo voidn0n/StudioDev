@@ -26,18 +26,6 @@ namespace AssetStudio.GUI.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool displayAll {
-            get {
-                return ((bool)(this["displayAll"]));
-            }
-            set {
-                this["displayAll"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool multiBundle {
             get {
                 return ((bool)(this["multiBundle"]));
@@ -236,18 +224,6 @@ namespace AssetStudio.GUI.Properties {
             }
             set {
                 this["fbxFormat"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public decimal scaleFactor {
-            get {
-                return ((decimal)(this["scaleFactor"]));
-            }
-            set {
-                this["scaleFactor"] = value;
             }
         }
         
@@ -496,18 +472,6 @@ namespace AssetStudio.GUI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"{""Animation"":{""Item1"":true,""Item2"":false},""AnimationClip"":{""Item1"":true,""Item2"":true},""Animator"":{""Item1"":true,""Item2"":true},""AnimatorController"":{""Item1"":true,""Item2"":false},""AnimatorOverrideController"":{""Item1"":true,""Item2"":false},""AssetBundle"":{""Item1"":true,""Item2"":false},""AudioClip"":{""Item1"":true,""Item2"":true},""Avatar"":{""Item1"":true,""Item2"":false},""Font"":{""Item1"":true,""Item2"":true},""GameObject"":{""Item1"":true,""Item2"":false},""IndexObject"":{""Item1"":true,""Item2"":false},""Material"":{""Item1"":true,""Item2"":true},""Mesh"":{""Item1"":true,""Item2"":true},""MeshFilter"":{""Item1"":true,""Item2"":false},""MeshRenderer"":{""Item1"":true,""Item2"":false},""MiHoYoBinData"":{""Item1"":true,""Item2"":true},""MonoBehaviour"":{""Item1"":true,""Item2"":true},""MonoScript"":{""Item1"":true,""Item2"":true},""MovieTexture"":{""Item1"":true,""Item2"":true},""PlayerSettings"":{""Item1"":true,""Item2"":false},""RectTransform"":{""Item1"":true,""Item2"":false},""Shader"":{""Item1"":true,""Item2"":true},""SkinnedMeshRenderer"":{""Item1"":true,""Item2"":false},""Sprite"":{""Item1"":true,""Item2"":true},""SpriteAtlas"":{""Item1"":true,""Item2"":false},""TextAsset"":{""Item1"":true,""Item2"":true},""Texture2D"":{""Item1"":true,""Item2"":true},""Transform"":{""Item1"":true,""Item2"":false},""VideoClip"":{""Item1"":true,""Item2"":true},""ResourceManager"":{""Item1"":true,""Item2"":false}}")]
-        public string types {
-            get {
-                return ((string)(this["types"]));
-            }
-            set {
-                this["types"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("{\"_BaseMap\":0,\"_MainTex\":0}")]
         public string texs {
             get {
@@ -521,24 +485,60 @@ namespace AssetStudio.GUI.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool exportMaterials {
-            get {
-                return ((bool)(this["exportMaterials"]));
-            }
-            set {
-                this["exportMaterials"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool forceLoadBundle {
             get {
                 return ((bool)(this["forceLoadBundle"]));
             }
             set {
                 this["forceLoadBundle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool displayAll {
+            get {
+                return ((bool)(this["displayAll"]));
+            }
+            set {
+                this["displayAll"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public decimal scaleFactor {
+            get {
+                return ((decimal)(this["scaleFactor"]));
+            }
+            set {
+                this["scaleFactor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"{""Animation"":{""Item1"":true,""Item2"":false},""AnimationClip"":{""Item1"":true,""Item2"":true},""Animator"":{""Item1"":true,""Item2"":true},""AnimatorController"":{""Item1"":true,""Item2"":false},""AnimatorOverrideController"":{""Item1"":true,""Item2"":false},""AssetBundle"":{""Item1"":true,""Item2"":false},""AudioClip"":{""Item1"":true,""Item2"":true},""Avatar"":{""Item1"":true,""Item2"":false},""Font"":{""Item1"":true,""Item2"":true},""GameObject"":{""Item1"":true,""Item2"":true},""IndexObject"":{""Item1"":true,""Item2"":false},""Material"":{""Item1"":true,""Item2"":true},""Mesh"":{""Item1"":true,""Item2"":true},""MeshFilter"":{""Item1"":true,""Item2"":false},""MeshRenderer"":{""Item1"":true,""Item2"":false},""MiHoYoBinData"":{""Item1"":true,""Item2"":true},""MonoBehaviour"":{""Item1"":true,""Item2"":true},""MonoScript"":{""Item1"":true,""Item2"":true},""MovieTexture"":{""Item1"":true,""Item2"":true},""PlayerSettings"":{""Item1"":true,""Item2"":false},""RectTransform"":{""Item1"":true,""Item2"":false},""Shader"":{""Item1"":true,""Item2"":true},""SkinnedMeshRenderer"":{""Item1"":true,""Item2"":false},""Sprite"":{""Item1"":true,""Item2"":true},""SpriteAtlas"":{""Item1"":true,""Item2"":false},""TextAsset"":{""Item1"":true,""Item2"":true},""Texture2D"":{""Item1"":true,""Item2"":true},""Transform"":{""Item1"":true,""Item2"":false},""VideoClip"":{""Item1"":true,""Item2"":true},""ResourceManager"":{""Item1"":true,""Item2"":false}}")]
+        public string types {
+            get {
+                return ((string)(this["types"]));
+            }
+            set {
+                this["types"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool exportMaterials {
+            get {
+                return ((bool)(this["exportMaterials"]));
+            }
+            set {
+                this["exportMaterials"] = value;
             }
         }
     }
