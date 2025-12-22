@@ -45,7 +45,7 @@ namespace AssetStudio.GUI
                 var names = typeof(AssetEntry).GetProperties().Select(x => x.Name);
 
                 _filters.Clear();
-                foreach(var name in names)
+                foreach (var name in names)
                 {
                     _filters.Add(name, new Regex(""));
                 }
@@ -113,9 +113,15 @@ namespace AssetStudio.GUI
                         toExportAssets.Clear();
                         assetsManager.Clear();
                     }
+                    AssetStudio.GUI.Exporter.exportScene = false;
                 });
                 StatusStripUpdate = statusStripUpdate;
             }
+        }
+        private async void exportSelectedAsScene_Click(object sender, EventArgs e)
+        {
+            AssetStudio.GUI.Exporter.exportScene = true;
+            exportSelected_Click(sender, e);
         }
         private void BuildAssetData(List<AssetItem> exportableAssets, AssetEntry[] entries)
         {

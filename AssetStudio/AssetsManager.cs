@@ -1,11 +1,14 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using static AssetStudio.BundleFile;
 using static AssetStudio.ImportHelper;
 
 namespace AssetStudio
@@ -15,7 +18,7 @@ namespace AssetStudio
         public Game Game;
         public bool Silent = false;
         public bool SkipProcess = false;
-        public bool ResolveDependencies = false;               
+        public bool ResolveDependencies = false;
         public string SpecifyUnityVersion;
         public CancellationTokenSource tokenSource = new CancellationTokenSource();
         public List<SerializedFile> assetsFileList = new List<SerializedFile>();
@@ -28,6 +31,10 @@ namespace AssetStudio
         internal HashSet<string> noexistFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         internal HashSet<string> assetsFileListHash = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         public bool paritial = false;
+        public static bool meshLazyLoad;
+        Dictionary<string, string[]> searchRootFileCache = new();
+        private static string loadFolder;
+
         public Dictionary<Object, List<long>> PathIDsByObjectCache { get; set; }
         public Dictionary<long, List<long>> PathIdToPptrs { get; set; } = new();
         public void AddPathId(long key, long value)
@@ -63,9 +70,10 @@ namespace AssetStudio
                 Logger.Silent = false;
                 Progress.Silent = false;
             }
+
         }
 
-    
+
 
         public void LoadFolder(string path)
         {
@@ -74,7 +82,7 @@ namespace AssetStudio
                 Logger.Silent = true;
                 Progress.Silent = true;
             }
-
+            AssetsManager.loadFolder = path;
             MergeSplitAssets(path, true);
             var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).ToList();
             var toReadFile = ProcessingSplitFiles(files);
@@ -89,11 +97,13 @@ namespace AssetStudio
 
         private void Load(string[] files)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             foreach (var file in files)
             {
-                if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"caching {file} path and name to filter out duplicates");
-			}
+
+                Logger.Verbose($"caching {file} path and name to filter out duplicates");
                 importFiles.Add(file);
                 importFilesHash.Add(Path.GetFileName(file));
             }
@@ -125,12 +135,14 @@ namespace AssetStudio
             assetsFileListHash.Clear();
             PathIDsByObjectCache = null;
             AssetsHelper.ClearOffsets();
-
+            Logger.Perf($"LoadFiles completed in {stopwatch.Elapsed.TotalSeconds:F2} seconds.");
             if (!SkipProcess)
             {
                 ReadAssets();
                 ProcessAssets();
             }
+            Logger.Perf($"ProcessAssets completed in {stopwatch.Elapsed.TotalSeconds:F2} seconds.");
+
         }
         private void LoadFile(string fullName)
         {
@@ -154,7 +166,10 @@ namespace AssetStudio
                     LoadAssetsFile(reader);
                     break;
                 case FileType.BundleFile:
-                    LoadBundleFile(reader);
+                    if (AssetsHelper.onDemand)
+                        LoadBundleFileTEST(reader);
+                    else
+                        LoadBundleFile(reader);
                     break;
                 case FileType.WebFile:
                     LoadWebFile(reader);
@@ -179,7 +194,24 @@ namespace AssetStudio
                     break;
             }
         }
+        private string GetSearchRoot(string fullPath)
+        {
+            var dir = Path.GetDirectoryName(fullPath);
 
+            if (dir == null)
+                return null;
+
+            var folderName = new DirectoryInfo(dir).Name;
+
+            // Detect unpack folder (adjust rules here)
+            if( folderName.Contains("_unpacked", StringComparison.OrdinalIgnoreCase))
+            {
+                // use parent folder instead
+                return Directory.GetParent(dir)?.FullName ?? dir;
+            }
+
+            return dir;
+        }
         private void LoadAssetsFile(FileReader reader)
         {
             if (!assetsFileListHash.Contains(reader.FileName))
@@ -191,28 +223,43 @@ namespace AssetStudio
                     CheckStrippedVersion(assetsFile);
                     assetsFileList.Add(assetsFile);
                     assetsFileListHash.Add(assetsFile.fileName);
+                    var searchRoot = GetSearchRoot(AssetsManager.loadFolder ?? reader.FullPath);
+                    if (searchRoot == null)
+                    {
+                        Logger.Verbose("Cannot determine search root, skipping file.");
+                        reader.Dispose();
+                        return;
+                    }
 
+                    // Build CAB-* file cache for this root once
+                    if (!searchRootFileCache.TryGetValue(searchRoot, out var cachedFiles))
+                    {
+                        Logger.Verbose($"Building CAB-* file list for root '{searchRoot}'...");
+                        cachedFiles = Directory.GetFiles(searchRoot, "*", SearchOption.AllDirectories);
+                        searchRootFileCache[searchRoot] = cachedFiles;
+                    }
                     foreach (var sharedFile in assetsFile.m_Externals)
                     {
-                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"{assetsFile.fileName} needs external file {sharedFile.fileName}, attempting to look it up...");
-			}
+
+                        Logger.Verbose($"{assetsFile.fileName} needs external file {sharedFile.fileName}, attempting to look it up...");
                         var sharedFileName = sharedFile.fileName;
 
                         if (!importFilesHash.Contains(sharedFileName))
                         {
+                            var curDir = Path.GetDirectoryName(reader.FullPath);
                             var sharedFilePath = Path.Combine(Path.GetDirectoryName(reader.FullPath), sharedFileName);
                             if (!noexistFiles.Contains(sharedFilePath))
                             {
                                 if (!File.Exists(sharedFilePath))
-                                {
-                                    var findFiles = Directory.GetFiles(Path.GetDirectoryName(reader.FullPath), sharedFileName, SearchOption.AllDirectories);
-                                    if (findFiles.Length > 0)
+                                { 
+                                    var found = cachedFiles.FirstOrDefault(f =>
+                                        string.Equals(Path.GetFileName(f), sharedFileName, StringComparison.OrdinalIgnoreCase));
+                                    sharedFilePath = found;
+
+                                    if (found != null)
                                     {
-                                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Found {findFiles.Length} matching files, picking first file {findFiles[0]} !!");
-			}
-                                        sharedFilePath = findFiles[0];
+                                        Logger.Verbose($"Using cached result: found {found}");
+                                        sharedFilePath = found;
                                     }
                                 }
                                 if (File.Exists(sharedFilePath))
@@ -222,9 +269,8 @@ namespace AssetStudio
                                 }
                                 else
                                 {
-                                    if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Nothing was found, caching into non existant files to avoid repeated searching !!");
-			}
+
+                                    Logger.Verbose("Nothing was found, caching into non existant files to avoid repeated searching !!");
                                     noexistFiles.Add(sharedFilePath);
                                 }
                             }
@@ -244,16 +290,16 @@ namespace AssetStudio
             }
         }
 
-        private void LoadAssetsFromMemory(FileReader reader, string originalPath, string unityVersion = null, long originalOffset = 0)
+        private SerializedFile LoadAssetsFromMemory(FileReader reader, string originalPath, string unityVersion = null, long originalOffset = 0, BundleBlockCache cache = null)
         {
-            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Loading asset file {reader.FileName} with version {unityVersion} from {originalPath} at offset 0x{originalOffset:X8}");
-			}
+
+            Logger.Verbose($"Loading asset file {reader.FileName} with version {unityVersion} from {originalPath} at offset 0x{originalOffset:X8}");
             if (!assetsFileListHash.Contains(reader.FileName))
             {
                 try
                 {
                     var assetsFile = new SerializedFile(reader, this);
+                    assetsFile.cache = cache;
                     assetsFile.originalPath = originalPath;
                     assetsFile.offset = originalOffset;
                     if (!string.IsNullOrEmpty(unityVersion) && assetsFile.header.m_Version < SerializedFileFormatVersion.Unknown_7)
@@ -263,6 +309,7 @@ namespace AssetStudio
                     CheckStrippedVersion(assetsFile);
                     assetsFileList.Add(assetsFile);
                     assetsFileListHash.Add(assetsFile.fileName);
+                    return assetsFile;
                 }
                 catch (Exception e)
                 {
@@ -272,34 +319,111 @@ namespace AssetStudio
             }
             else
                 Logger.Info($"Skipping {originalPath} ({reader.FileName})");
+            return null;
+
         }
 
         private void LoadBundleFile(FileReader reader, string originalPath = null, long originalOffset = 0, bool log = true)
         {
-            if (!this.Silent && log) 
+            if (!this.Silent && log)
             {
                 Logger.Info("Loading " + reader.FullPath);
             }
             try
             {
-                var bundleFile = new BundleFile(reader, Game,this.paritial);
+                var bundleFile = new BundleFile(reader, Game, this.paritial);
                 foreach (var file in bundleFile.fileList)
                 {
                     var dummyPath = Path.Combine(Path.GetDirectoryName(reader.FullPath), file.fileName);
-                    var subReader = new FileReader(dummyPath, file.stream);
+                    var subReader = new FileReader(dummyPath, file.stream, Game);
                     if (subReader.FileType == FileType.AssetsFile)
                     {
                         LoadAssetsFromMemory(subReader, originalPath ?? reader.FullPath, bundleFile.m_Header.unityRevision, originalOffset);
                     }
                     else
                     {
-                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Caching resource stream");
-			}
+
+                        Logger.Verbose("Caching resource stream");
                         resourceFileReaders.TryAdd(file.fileName, subReader); //TODO
                     }
                 }
             }
+            catch (InvalidCastException)
+            {
+                Logger.Error($"Game type mismatch, Expected {nameof(Mr0k)} but got {Game.Name} ({Game.GetType().Name}) !!");
+            }
+            catch (Exception e)
+            {
+                var str = $"Error while reading bundle file {reader.FullPath}";
+                if (originalPath != null)
+                {
+                    str += $" from {Path.GetFileName(originalPath)}";
+                }
+                Logger.Error(str, e);
+            }
+            finally
+            {
+                reader.Dispose();
+            }
+        }
+        public void LoadBundleFileTEST(FileReader reader, string originalPath = null, long originalOffset = 0, bool log = true)
+        {
+            if (!this.Silent && log)
+            {
+                Logger.Info("Loading " + reader.FullPath);
+            }
+            try
+            {
+                var bundleFile = new BundleFilePartial(reader, Game, this.paritial);
+                var originalBlocks = new List<BundleFile.StorageBlock>(bundleFile.m_BlocksInfo);
+                var orignalDir = new List<BundleFile.Node>(bundleFile.m_DirectoryInfo);
+                var cabDir = bundleFile.m_DirectoryInfo.Find(e => BundleFile.CabRegex.IsMatch(e.path));
+                using (var blocksStream = bundleFile.CreateBlocksStream(reader.FullPath))
+                {
+                    var (filteredBlocks, remainingBlocks, filteredIndices, remainingIndices) =
+                        BundleFile.FilterBlocksWithRemaining(bundleFile.m_BlocksInfo, cabDir);
+                    bundleFile.m_BlocksInfo = filteredBlocks;
+                    bundleFile.ReadBlocks(reader, blocksStream);
+                    bundleFile.m_DirectoryInfo = new List<BundleFile.Node> { cabDir };
+                    bundleFile.ReadFiles(blocksStream, reader.FullPath);
+                    bundleFile.m_BlocksInfo = originalBlocks;
+
+
+                    foreach (var file in bundleFile.fileList)
+                    {
+                        var dummyPath = Path.Combine(Path.GetDirectoryName(reader.FullPath), file.fileName);
+                        var subReader = new FileReader(dummyPath, file.stream, Game);
+
+                        if (subReader.FileType == FileType.AssetsFile)
+                        {
+    
+                            var blockCache = new BundleBlockCache(bundleFile, reader, remainingBlocks, remainingIndices, filteredIndices);
+                            var serializedFile = LoadAssetsFromMemory(subReader,
+                                originalPath ?? reader.FullPath,
+                                bundleFile.m_Header.unityRevision,
+                                originalOffset,
+                                blockCache);
+
+                            var resSBlocks = remainingIndices; 
+                            var resSOffset = 0;
+                            blockCache.SetResSBlocks(resSBlocks, resSOffset);
+                            long totalResSSize = reader.Length - serializedFile.header.m_FileSize;
+                            long filteredBytes = filteredBlocks.Sum(b => b.uncompressedSize);
+                            long assetFileSize = serializedFile.header.m_FileSize;
+                            long overlap = filteredBytes - assetFileSize;
+
+                            if (overlap > 0)
+                            {
+                                blocksStream.Position = blocksStream.Length - overlap;
+                                byte[] overlapBytes = new byte[overlap];
+                                blocksStream.Read(overlapBytes, 0, (int)overlap);
+                                blockCache._firstBlockPrepend = overlapBytes;
+                            }
+                        }
+                    }
+                }
+            }
+
             catch (InvalidCastException)
             {
                 Logger.Error($"Game type mismatch, Expected {nameof(Mr0k)} but got {Game.Name} ({Game.GetType().Name}) !!");
@@ -341,9 +465,8 @@ namespace AssetStudio
                             LoadWebFile(subReader);
                             break;
                         case FileType.ResourceFile:
-                            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Caching resource stream");
-			}
+
+                            Logger.Verbose("Caching resource stream");
                             resourceFileReaders.TryAdd(file.fileName, subReader); //TODO
                             break;
                     }
@@ -367,9 +490,8 @@ namespace AssetStudio
                 using (ZipArchive archive = new ZipArchive(reader.BaseStream, ZipArchiveMode.Read))
                 {
                     List<string> splitFiles = new List<string>();
-                    if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Register all files before parsing the assets so that the external references can be found and find split files");
-			}
+
+                    Logger.Verbose("Register all files before parsing the assets so that the external references can be found and find split files");
                     foreach (ZipArchiveEntry entry in archive.Entries)
                     {
                         if (entry.Name.Contains(".split"))
@@ -388,9 +510,8 @@ namespace AssetStudio
                         }
                     }
 
-                    if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Merge split files and load the result");
-			}
+
+                    Logger.Verbose("Merge split files and load the result");
                     foreach (string basePath in splitFiles)
                     {
                         try
@@ -419,20 +540,17 @@ namespace AssetStudio
                         }
                     }
 
-                    if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Load all entries");
-			}
-                    if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Found {archive.Entries.Count} entries"); 
-			}
+
+                    Logger.Verbose("Load all entries");
+
+                    Logger.Verbose($"Found {archive.Entries.Count} entries");
                     foreach (ZipArchiveEntry entry in archive.Entries)
                     {
                         try
                         {
                             string dummyPath = Path.Combine(Path.GetDirectoryName(reader.FullPath), reader.FileName, entry.FullName);
-                            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Create a new stream to store the deflated stream in and keep the data for later extraction");
-			}
+
+                            Logger.Verbose("Create a new stream to store the deflated stream in and keep the data for later extraction");
                             Stream streamReader = new MemoryStream();
                             using (Stream entryStream = entry.Open())
                             {
@@ -446,9 +564,8 @@ namespace AssetStudio
                             if (entryReader.FileType == FileType.ResourceFile)
                             {
                                 entryReader.Position = 0;
-                                if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Caching resource file");
-			}
+
+                                Logger.Verbose("Caching resource file");
                                 resourceFileReaders.TryAdd(entry.Name, entryReader);
                             }
                         }
@@ -477,7 +594,10 @@ namespace AssetStudio
                 foreach (var offset in stream.GetOffsets(reader.FullPath))
                 {
                     var name = offset.ToString("X8");
-                    Logger.Info($"Loading Block {name}");
+                    if (!AssetsHelper.forceSilent)
+                    {
+                        Logger.Info($"Loading Block {name}");
+                    }
 
                     var dummyPath = Path.Combine(Path.GetDirectoryName(reader.FullPath), name);
                     var subReader = new FileReader(dummyPath, stream, true);
@@ -494,7 +614,7 @@ namespace AssetStudio
                             LoadMhyFile(subReader, reader.FullPath, offset, false);
                             break;
                     }
-                }    
+                }
             }
             catch (Exception e)
             {
@@ -551,9 +671,8 @@ namespace AssetStudio
             try
             {
                 var mhyFile = new MhyFile(reader, (Mhy)Game);
-                if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"mhy total size: {mhyFile.m_Header.size:X8}");
-			}
+
+                Logger.Verbose($"mhy total size: {mhyFile.m_Header.size:X8}");
                 foreach (var file in mhyFile.fileList)
                 {
                     var dummyPath = Path.Combine(Path.GetDirectoryName(reader.FullPath), file.fileName);
@@ -564,9 +683,8 @@ namespace AssetStudio
                     }
                     else
                     {
-                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Caching resource stream");
-			}
+
+                        Logger.Verbose("Caching resource stream");
                         resourceFileReaders.TryAdd(file.fileName, cabReader); //TODO
                     }
                 }
@@ -589,7 +707,7 @@ namespace AssetStudio
                 reader.Dispose();
             }
         }
-        
+
         private void LoadBlbFile(FileReader reader, string originalPath = null, long originalOffset = 0, bool log = true)
         {
             if (log)
@@ -609,9 +727,8 @@ namespace AssetStudio
                     }
                     else
                     {
-                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose("Caching resource stream");
-			}
+
+                        Logger.Verbose("Caching resource stream");
                         resourceFileReaders.TryAdd(file.fileName, cabReader); //TODO
                     }
                 }
@@ -645,10 +762,8 @@ namespace AssetStudio
 
         public void Clear()
         {
-            if(Logger.Flags.HasFlag(LoggerEvent.Verbose))
-            {
-			Logger.Verbose("Cleaning up...");
-			}
+
+            Logger.Verbose("Cleaning up...");
 
             foreach (var assetsFile in assetsFileList)
             {
@@ -667,9 +782,13 @@ namespace AssetStudio
 
             tokenSource.Dispose();
             tokenSource = new CancellationTokenSource();
+            //_ = Task.Run(() =>
+            //{
+            //    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
 
-            //GC.WaitForPendingFinalizers();
-            //GC.Collect();
+
+            //    GC.Collect();
+            //});
         }
 
         private void ReadAssets()
@@ -737,6 +856,7 @@ namespace AssetStudio
                             .AppendLine($"Path {assetsFile.originalPath}")
                             .AppendLine($"Type {objectReader.type}")
                             .AppendLine($"PathID {objectInfo.m_PathID}")
+                            .AppendLine($"Hash {Convert.ToHexString(objectReader.serializedType.m_OldTypeHash)}")
                             .Append(e);
                         Logger.Error(sb.ToString());
                     }
@@ -763,9 +883,8 @@ namespace AssetStudio
                     }
                     if (obj is GameObject m_GameObject)
                     {
-                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"GameObject with {m_GameObject.m_PathID} in file {m_GameObject.assetsFile.fileName} has {m_GameObject.m_Components.Count} components, Attempting to fetch them...");
-			}
+
+                        Logger.Verbose($"GameObject with {m_GameObject.m_PathID} in file {m_GameObject.assetsFile.fileName} has {m_GameObject.m_Components.Count} components, Attempting to fetch them...");
                         foreach (var pptr in m_GameObject.m_Components)
                         {
                             if (pptr.TryGet(out var m_Component))
@@ -773,41 +892,35 @@ namespace AssetStudio
                                 switch (m_Component)
                                 {
                                     case Transform m_Transform:
-                                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Fetched Transform component with {m_Transform.m_PathID} in file {m_Transform.assetsFile.fileName}, assigning to GameObject components...");
-			}
+
+                                        Logger.Verbose($"Fetched Transform component with {m_Transform.m_PathID} in file {m_Transform.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_Transform = m_Transform;
-                                            break;
+                                        break;
                                     case MeshRenderer m_MeshRenderer:
-                                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Fetched MeshRenderer component with {m_MeshRenderer.m_PathID} in file {m_MeshRenderer.assetsFile.fileName}, assigning to GameObject components...");
-			}
+
+                                        Logger.Verbose($"Fetched MeshRenderer component with {m_MeshRenderer.m_PathID} in file {m_MeshRenderer.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_MeshRenderer = m_MeshRenderer;
-                                            break;
+                                        break;
                                     case MeshFilter m_MeshFilter:
-                                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Fetched MeshFilter component with {m_MeshFilter.m_PathID} in file {m_MeshFilter.assetsFile.fileName}, assigning to GameObject components...");
-			}
+
+                                        Logger.Verbose($"Fetched MeshFilter component with {m_MeshFilter.m_PathID} in file {m_MeshFilter.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_MeshFilter = m_MeshFilter;
-                                            break;
+                                        break;
                                     case SkinnedMeshRenderer m_SkinnedMeshRenderer:
-                                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Fetched SkinnedMeshRenderer component with {m_SkinnedMeshRenderer.m_PathID} in file {m_SkinnedMeshRenderer.assetsFile.fileName}, assigning to GameObject components...");
-			}
+
+                                        Logger.Verbose($"Fetched SkinnedMeshRenderer component with {m_SkinnedMeshRenderer.m_PathID} in file {m_SkinnedMeshRenderer.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_SkinnedMeshRenderer = m_SkinnedMeshRenderer;
-                                            break;
+                                        break;
                                     case Animator m_Animator:
-                                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Fetched Animator component with {m_Animator.m_PathID} in file {m_Animator.assetsFile.fileName}, assigning to GameObject components...");
-			}
+
+                                        Logger.Verbose($"Fetched Animator component with {m_Animator.m_PathID} in file {m_Animator.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_Animator = m_Animator;
-                                            break;
+                                        break;
                                     case Animation m_Animation:
-                                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Fetched Animation component with {m_Animation.m_PathID} in file {m_Animation.assetsFile.fileName}, assigning to GameObject components...");
-			}
+
+                                        Logger.Verbose($"Fetched Animation component with {m_Animation.m_PathID} in file {m_Animation.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_Animation = m_Animation;
-                                            break;
+                                        break;
                                 }
                             }
                         }
@@ -816,18 +929,16 @@ namespace AssetStudio
                     {
                         if (m_SpriteAtlas.m_RenderDataMap.Count > 0)
                         {
-                            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"SpriteAtlas with {m_SpriteAtlas.m_PathID} in file {m_SpriteAtlas.assetsFile.fileName} has {m_SpriteAtlas.m_PackedSprites.Count} packed sprites, Attempting to fetch them...");
-			}
+
+                            Logger.Verbose($"SpriteAtlas with {m_SpriteAtlas.m_PathID} in file {m_SpriteAtlas.assetsFile.fileName} has {m_SpriteAtlas.m_PackedSprites.Count} packed sprites, Attempting to fetch them...");
                             foreach (var m_PackedSprite in m_SpriteAtlas.m_PackedSprites)
                             {
                                 if (m_PackedSprite.TryGet(out var m_Sprite))
                                 {
                                     if (m_Sprite.m_SpriteAtlas.IsNull)
                                     {
-                                        if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Fetched Sprite with {m_Sprite.m_PathID} in file {m_Sprite.assetsFile.fileName}, assigning to parent SpriteAtlas...");
-			}
+
+                                        Logger.Verbose($"Fetched Sprite with {m_Sprite.m_PathID} in file {m_Sprite.assetsFile.fileName}, assigning to parent SpriteAtlas...");
                                         m_Sprite.m_SpriteAtlas.Set(m_SpriteAtlas);
                                     }
                                     else
@@ -835,9 +946,8 @@ namespace AssetStudio
                                         m_Sprite.m_SpriteAtlas.TryGet(out var m_SpriteAtlaOld);
                                         if (m_SpriteAtlaOld.m_IsVariant)
                                         {
-                                            if(Logger.Flags.HasFlag(LoggerEvent.Verbose)){
-			Logger.Verbose($"Fetched Sprite with {m_Sprite.m_PathID} in file {m_Sprite.assetsFile.fileName} has a variant of the origianl SpriteAtlas, disposing of the variant and assinging to the parent SpriteAtlas...");
-			}
+
+                                            Logger.Verbose($"Fetched Sprite with {m_Sprite.m_PathID} in file {m_Sprite.assetsFile.fileName} has a variant of the origianl SpriteAtlas, disposing of the variant and assinging to the parent SpriteAtlas...");
                                             m_Sprite.m_SpriteAtlas.Set(m_SpriteAtlas);
                                         }
                                     }

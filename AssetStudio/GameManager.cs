@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using static AssetStudio.Crypto;
 
 namespace AssetStudio
@@ -28,9 +28,11 @@ namespace AssetStudio
             Games.Add(index++, new Mr0k(GameType.ZZZ_CB1, Mr0kExpansionKey, initVector: Mr0kInitVector, blockKey: Mr0kBlockKey));
             Games.Add(index++, new Mr0k(GameType.TOT, Mr0kExpansionKey, initVector: Mr0kInitVector, blockKey: Mr0kBlockKey, postKey: ToTKey));
             Games.Add(index++, new Game(GameType.GGZ));
+            Games.Add(index++, new Game(GameType.GGZV2));
             Games.Add(index++, new Game(GameType.Naraka));
             Games.Add(index++, new Game(GameType.EnsembleStars));
             Games.Add(index++, new Game(GameType.OPFP));
+            Games.Add(index++, new Game(GameType.OPBR));
             Games.Add(index++, new Game(GameType.FakeHeader));
             Games.Add(index++, new Game(GameType.FantasyOfWind));
             Games.Add(index++, new Game(GameType.ShiningNikki));
@@ -61,8 +63,15 @@ namespace AssetStudio
             Games.Add(index++, new Game(GameType.BLR3));
             Games.Add(index++, new Game(GameType.Metallopus));
             Games.Add(index++, new Game(GameType.EOS));
+            Games.Add(index++, new Game(GameType.InfinityKingdom));
+            Games.Add(index++, new Game(GameType.SSTX));
+            Games.Add(index++, new Game(GameType.LATALE));
+            Games.Add(index++, new Game(GameType.SRU));
 
         }
+
+
+
         public static Game GetGame(GameType gameType) => GetGame((int)gameType);
         public static Game GetGame(int index)
         {
@@ -85,13 +94,14 @@ namespace AssetStudio
         public string Name { get; set; }
         public GameType Type { get; }
         public string Ext { get; set; }
-
+        public Action<Game>? Callback { get; set; }
+        public object? Data { get; set; }
         public Game(GameType type)
         {
             Name = type.ToString();
             Type = type;
         }
-        public Game(GameType type,string ext)
+        public Game(GameType type, string ext)
         {
             Name = type.ToString();
             Type = type;
@@ -167,9 +177,11 @@ namespace AssetStudio
         SR,
         TOT,
         GGZ,
+        GGZV2,
         Naraka,
         EnsembleStars,
         OPFP,
+        OPBR,
         FakeHeader,
         FantasyOfWind,
         ShiningNikki,
@@ -199,7 +211,11 @@ namespace AssetStudio
         ThreeKingdoms,
         BLR3,
         Metallopus,
-        EOS
+        EOS,
+        InfinityKingdom,
+        SSTX,
+        LATALE,
+        SRU
     }
 
     public static class GameTypes
@@ -222,6 +238,7 @@ namespace AssetStudio
         public static bool IsSR(this GameType type) => type == GameType.SR;
         public static bool IsTOT(this GameType type) => type == GameType.TOT;
         public static bool IsGGZ(this GameType type) => type == GameType.GGZ;
+        public static bool IsGGZV2(this GameType type) => type == GameType.GGZV2;
         public static bool IsNaraka(this GameType type) => type == GameType.Naraka;
         public static bool IsOPFP(this GameType type) => type == GameType.OPFP;
         public static bool IsNetEase(this GameType type) => type == GameType.NetEase;
@@ -238,7 +255,9 @@ namespace AssetStudio
         public static bool isThreeKingdoms(this GameType type) => type == GameType.ThreeKingdoms;
         public static bool isBLR3(this GameType type) => type == GameType.BLR3;
         public static bool isMetallopus(this GameType type) => type == GameType.Metallopus;
-        public static bool isEOS (this GameType type) => type == GameType.EOS;
+        public static bool isEOS(this GameType type) => type == GameType.EOS;
+        public static bool isSSTX(this GameType type) => type == GameType.SSTX;
+        public static bool isLATALE(this GameType type) => type == GameType.LATALE;
 
         public static bool IsGIGroup(this GameType type) => type switch
         {

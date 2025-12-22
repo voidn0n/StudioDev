@@ -35,10 +35,13 @@ namespace AssetStudio.GUI
             menuStrip1 = new System.Windows.Forms.MenuStrip();
             fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             loadFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            ForceGCStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             loadFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             extractFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            decryptFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             extractFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            DecryptFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             abortStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,6 +59,8 @@ namespace AssetStudio.GUI
             allowDuplicates = new System.Windows.Forms.ToolStripMenuItem();
             forceLoadBundle = new System.Windows.Forms.ToolStripMenuItem();
             skipContainer = new System.Windows.Forms.ToolStripMenuItem();
+            skipBuildingTree = new System.Windows.Forms.ToolStripMenuItem();
+            meshLazyLoad = new System.Windows.Forms.ToolStripMenuItem();
             toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
             toolStripMenuItem14 = new System.Windows.Forms.ToolStripMenuItem();
             specifyUnityVersion = new System.Windows.Forms.ToolStripTextBox();
@@ -112,7 +117,8 @@ namespace AssetStudio.GUI
             loggedEventsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             miscToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             MapNameComboBox = new System.Windows.Forms.ToolStripComboBox();
-            buildMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            buildMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();   
+            onDemand = new System.Windows.Forms.ToolStripMenuItem();
             partialLoad = new System.Windows.Forms.ToolStripMenuItem();
             buildBothToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             buildBothParallelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -178,6 +184,7 @@ namespace AssetStudio.GUI
             contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(components);
             copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             exportSelectedAssetsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            exportSelectedAssetsAsSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             exportAnimatorwithselectedAnimationClipMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             goToSceneHierarchyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             showOriginalFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -213,7 +220,7 @@ namespace AssetStudio.GUI
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { loadFileToolStripMenuItem, loadFolderToolStripMenuItem, toolStripMenuItem1, extractFileToolStripMenuItem, extractFolderToolStripMenuItem, toolStripSeparator6, resetToolStripMenuItem, exportLoadedPathsMenuItem,abortStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { loadFileToolStripMenuItem, loadFolderToolStripMenuItem, toolStripMenuItem1, extractFileToolStripMenuItem, extractFolderToolStripMenuItem, decryptFileToolStripMenuItem,DecryptFolderToolStripMenuItem, toolStripSeparator6, resetToolStripMenuItem, exportLoadedPathsMenuItem,abortStripMenuItem , ForceGCStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             fileToolStripMenuItem.Text = "File";
@@ -224,6 +231,12 @@ namespace AssetStudio.GUI
             loadFileToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             loadFileToolStripMenuItem.Text = "Load file";
             loadFileToolStripMenuItem.Click += loadFile_Click;
+            // 
+            // 
+            ForceGCStripMenuItem.Name = "ForceGCStripMenuItem";
+            ForceGCStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            ForceGCStripMenuItem.Text = "FORCE GC";
+            ForceGCStripMenuItem.Click += ForceGC_Click;
             // 
             // loadFolderToolStripMenuItem
             // 
@@ -244,12 +257,27 @@ namespace AssetStudio.GUI
             extractFileToolStripMenuItem.Text = "Extract file";
             extractFileToolStripMenuItem.Click += extractFileToolStripMenuItem_Click;
             // 
+            // 
+            // extractFileToolStripMenuItem
+            // 
+            decryptFileToolStripMenuItem.Name = "decryptFileToolStripMenuItem";
+            decryptFileToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            decryptFileToolStripMenuItem.Text = "Decrypt file";
+            decryptFileToolStripMenuItem.Click += decryptFileToolStripMenuItem_Click;
+            // 
             // extractFolderToolStripMenuItem
             // 
             extractFolderToolStripMenuItem.Name = "extractFolderToolStripMenuItem";
             extractFolderToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             extractFolderToolStripMenuItem.Text = "Extract folder";
             extractFolderToolStripMenuItem.Click += extractFolderToolStripMenuItem_Click;
+            // 
+            // DecryptFolderToolStripMenuItem
+            // 
+            DecryptFolderToolStripMenuItem.Name = "DecryptFolderToolStripMenuItem";
+            DecryptFolderToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            DecryptFolderToolStripMenuItem.Text = "Decrypt folder";
+            DecryptFolderToolStripMenuItem.Click += DecryptFolderToolStripMenuItem_Click;
             // 
             // toolStripSeparator6
             // 
@@ -279,7 +307,7 @@ namespace AssetStudio.GUI
             // 
             // optionsToolStripMenuItem
             // 
-            optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { displayAll, multiBundle,toolStripSeparator10, enablePreview, enableModelPreview, modelsOnly, toolStripSeparator11, displayInfo, enableResolveDependencies, allowDuplicates, forceLoadBundle, skipContainer, toolStripSeparator12, toolStripMenuItem14, specifyUnityCNKey, toolStripSeparator13, toolStripMenuItem18, toolStripMenuItem19, showExpOpt });
+            optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { displayAll, multiBundle,toolStripSeparator10, enablePreview, enableModelPreview, modelsOnly, toolStripSeparator11, displayInfo, enableResolveDependencies, allowDuplicates, forceLoadBundle, skipContainer, skipBuildingTree, meshLazyLoad,toolStripSeparator12, toolStripMenuItem14, specifyUnityCNKey, toolStripSeparator13, toolStripMenuItem18, toolStripMenuItem19, showExpOpt });
             optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             optionsToolStripMenuItem.Text = "Options";
@@ -311,6 +339,12 @@ namespace AssetStudio.GUI
             partialLoad.ToolTipText = "should make assetmap faster or break it completely!";
             partialLoad.CheckedChanged += partialLoad_CheckedChanged;
             // 
+            onDemand.CheckOnClick = true;
+            onDemand.Name = "onDemand";
+            onDemand.Size = new System.Drawing.Size(225, 22);
+            onDemand.Text = "broken button";
+            onDemand.ToolTipText = "just testing dont use it";
+            onDemand.CheckedChanged += onDemand_CheckedChanged;
             // toolStripSeparator10
             // 
             toolStripSeparator10.Name = "toolStripSeparator10";
@@ -398,6 +432,25 @@ namespace AssetStudio.GUI
             skipContainer.Text = "Skip container recovery";
             skipContainer.ToolTipText = "Skips the container recovery step.\nImproves loading when dealing with a large number of files.";
             skipContainer.CheckedChanged += skipContainer_CheckedChanged;
+            // 
+            // skipBuildingTree
+            // 
+            skipBuildingTree.CheckOnClick = true;
+            skipBuildingTree.Name = "SkipBuildingTree";
+            skipBuildingTree.Size = new System.Drawing.Size(225, 22);
+            skipBuildingTree.Text = "Skip building tree";
+            skipBuildingTree.ToolTipText = "Skips building tree nodes";
+            skipBuildingTree.CheckedChanged += SkipBuildingTree_CheckedChanged;
+            // 
+            // 
+            // meshLazyLoad
+            // 
+            meshLazyLoad.CheckOnClick = true;
+            meshLazyLoad.Name = "meshLazyLoad";
+            meshLazyLoad.Size = new System.Drawing.Size(225, 22);
+            meshLazyLoad.Text = "MeshLazyLoad";
+            meshLazyLoad.ToolTipText = "only process mesh on export / preview";
+            meshLazyLoad.CheckedChanged += meshLazyLoad_CheckedChanged;
             // 
             // toolStripSeparator12
             // 
@@ -777,7 +830,7 @@ namespace AssetStudio.GUI
             // 
             // miscToolStripMenuItem
             // 
-            miscToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { MapNameComboBox, buildMapToolStripMenuItem, buildBothToolStripMenuItem, buildBothParallelToolStripMenuItem, buildBothParallelTestToolStripMenuItem,clearMapToolStripMenuItem, partialLoad, toolStripSeparator7, assetMapNameTextBox, buildAssetMapToolStripMenuItem, assetExtTextBox, assetMapTypeMenuItem, toolStripSeparator8, loadAIToolStripMenuItem, loadCABMapToolStripMenuItem, assetBrowserToolStripMenuItem });
+            miscToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { MapNameComboBox, buildMapToolStripMenuItem, buildBothToolStripMenuItem, buildBothParallelToolStripMenuItem, buildBothParallelTestToolStripMenuItem,clearMapToolStripMenuItem, partialLoad, onDemand,toolStripSeparator7, assetMapNameTextBox, buildAssetMapToolStripMenuItem, assetExtTextBox, assetMapTypeMenuItem, toolStripSeparator8, loadAIToolStripMenuItem, loadCABMapToolStripMenuItem, assetBrowserToolStripMenuItem });
             miscToolStripMenuItem.Name = "miscToolStripMenuItem";
             miscToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             miscToolStripMenuItem.Text = "Misc.";
@@ -1386,7 +1439,7 @@ namespace AssetStudio.GUI
             // contextMenuStrip1
             // 
             contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { copyToolStripMenuItem, exportSelectedAssetsToolStripMenuItem, exportAnimatorwithselectedAnimationClipMenuItem, goToSceneHierarchyToolStripMenuItem, showOriginalFileToolStripMenuItem });
+            contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { copyToolStripMenuItem, exportSelectedAssetsToolStripMenuItem, exportSelectedAssetsAsSceneToolStripMenuItem, exportAnimatorwithselectedAnimationClipMenuItem, goToSceneHierarchyToolStripMenuItem, showOriginalFileToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
             contextMenuStrip1.Size = new System.Drawing.Size(304, 114);
             // 
@@ -1403,6 +1456,13 @@ namespace AssetStudio.GUI
             exportSelectedAssetsToolStripMenuItem.Size = new System.Drawing.Size(303, 22);
             exportSelectedAssetsToolStripMenuItem.Text = "Export selected assets";
             exportSelectedAssetsToolStripMenuItem.Click += exportSelectedAssetsToolStripMenuItem_Click;
+            // 
+            //exportSelectedAssetsAsSceneToolStripMenuItem
+            //
+            exportSelectedAssetsAsSceneToolStripMenuItem.Name = "exportSelectedAssetsAsSceneToolStripMenuItem";
+            exportSelectedAssetsAsSceneToolStripMenuItem.Size = new System.Drawing.Size(303, 22);
+            exportSelectedAssetsAsSceneToolStripMenuItem.Text = "Export selected GO as Scene";
+            exportSelectedAssetsAsSceneToolStripMenuItem.Click += exportSelectedAssetsAsSceneToolStripMenuItem_Click;
             // 
             // exportAnimatorwithselectedAnimationClipMenuItem
             // 
@@ -1487,6 +1547,7 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.TextBox treeSearch;
         private System.Windows.Forms.TextBox listSearch;
         private System.Windows.Forms.ToolStripMenuItem loadFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ForceGCStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadFolderToolStripMenuItem;
         private System.Windows.Forms.ListView assetListView;
         private System.Windows.Forms.ColumnHeader columnHeaderName;
@@ -1523,7 +1584,9 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.ToolStripMenuItem displayInfo;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem extractFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem decryptFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem extractFolderToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem DecryptFolderToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.ToolStripMenuItem showExpOpt;
         private GOHierarchy sceneTreeView;
@@ -1540,6 +1603,7 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.ToolStripMenuItem showOriginalFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportAnimatorwithselectedAnimationClipMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportSelectedAssetsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportSelectedAssetsAsSceneToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem filterTypeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem allToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportSelectedObjectsToolStripMenuItem;
@@ -1607,6 +1671,8 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
         private System.Windows.Forms.ToolStripMenuItem buildMapToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem partialLoad;
+        private System.Windows.Forms.ToolStripMenuItem onDemand;
+        private System.Windows.Forms.ToolStripMenuItem meshLazyLoad;
         private System.Windows.Forms.ToolStripMenuItem assetBrowserToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripMenuItem exportSelectedNodessplitToolStripMenuItem;
@@ -1615,6 +1681,7 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.ToolStripMenuItem enableModelPreview;
         private System.Windows.Forms.ToolStripMenuItem enableResolveDependencies;
         private System.Windows.Forms.ToolStripMenuItem skipContainer;
+        private System.Windows.Forms.ToolStripMenuItem skipBuildingTree;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
@@ -1627,7 +1694,6 @@ namespace AssetStudio.GUI
         private System.Windows.Forms.ToolStripMenuItem loadCABMapToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem allowDuplicates;
         private System.Windows.Forms.ToolStripMenuItem forceLoadBundle;
-
     }
 }
 

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -1605,7 +1604,7 @@ namespace AssetStudio
             public bool exportMaterials;
             public HashSet<Material> materials;
             public Dictionary<string, (bool, int)> uvs;
-            public Dictionary<string, int> texs; 
+            public Dictionary<string, int> texs;
         }
     }
 }

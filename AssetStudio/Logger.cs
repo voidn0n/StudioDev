@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 
 namespace AssetStudio
@@ -46,7 +44,7 @@ namespace AssetStudio
 
         public static void Verbose(string message)
         {
-            if (!Flags.HasFlag(LoggerEvent.Verbose) || Silent)
+            if ((Flags & LoggerEvent.Verbose) == 0 || Silent)
                 return;
 
             try
@@ -64,7 +62,7 @@ namespace AssetStudio
         }
         public static void Debug(string message)
         {
-            if (!Flags.HasFlag(LoggerEvent.Debug) || Silent)
+            if ((Flags & LoggerEvent.Debug) == 0 || Silent)
                 return;
 
             if (FileLogging) File.Log(LoggerEvent.Debug, message);
@@ -72,15 +70,23 @@ namespace AssetStudio
         }
         public static void Info(string message)
         {
-            if (!Flags.HasFlag(LoggerEvent.Info) || Silent)
+            if ((Flags & LoggerEvent.Info) == 0 || Silent)
                 return;
 
             if (FileLogging) File.Log(LoggerEvent.Info, message);
             Default.Log(LoggerEvent.Info, message);
         }
+        public static void Perf(string message)
+        {
+            if ((Flags & LoggerEvent.Debug) == 0 || Silent)
+                return;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
         public static void Warning(string message)
         {
-            if (!Flags.HasFlag(LoggerEvent.Warning) || Silent)
+            if ((Flags & LoggerEvent.Warning) == 0 || Silent)
                 return;
 
             if (FileLogging) File.Log(LoggerEvent.Warning, message);
@@ -88,7 +94,7 @@ namespace AssetStudio
         }
         public static void Error(string message)
         {
-            if (!Flags.HasFlag(LoggerEvent.Error) || Silent)
+            if ((Flags & LoggerEvent.Error) == 0 || Silent)
                 return;
             Console.ForegroundColor = ConsoleColor.Red;
             if (FileLogging) File.Log(LoggerEvent.Error, message);
@@ -98,7 +104,7 @@ namespace AssetStudio
 
         public static void Error(string message, Exception e)
         {
-            if (!Flags.HasFlag(LoggerEvent.Error) || Silent)
+            if ((Flags & LoggerEvent.Error) == 0 || Silent)
                 return;
 
             var sb = new StringBuilder();

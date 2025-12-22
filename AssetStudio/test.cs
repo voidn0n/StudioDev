@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -85,6 +84,7 @@ namespace AssetStudio
                     sliceStats.Add((slice.Length, localAssets.Count, localCollisions));
                     manager.Clear();
                     manager.assetsFileList.Clear();
+                    manager.PathIdToPptrs.Clear();
                 });
 
             var finalAssets = bag.ToList();
@@ -97,7 +97,7 @@ namespace AssetStudio
                 sliceIndex++;
             }
             AssetsHelper.UpdateContainers(finalAssets, game);
-            AssetsHelper.DumpCABMap(mapName,AssetsHelperParallel.CABMap);
+            AssetsHelper.DumpCABMap(mapName, AssetsHelperParallel.CABMap);
 
             Logger.Info($"Map built successfully! {totalCollisions} collisions found");
 
@@ -122,6 +122,10 @@ namespace AssetStudio
     Regex[] containerFilters = null)
         {
             Logger.Info("Building Both in Parallel...");
+            //const long sixteenGB = 1L * 1024 * 1024 * 1024;
+
+            //bool started = GC.TryStartNoGCRegion(sixteenGB);
+
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             int totalCollisions = 0;
@@ -132,7 +136,7 @@ namespace AssetStudio
             var bag = new ConcurrentBag<AssetEntry>();
             var fileStats = new ConcurrentBag<(string file, int assetCount, int collisions)>();
             //var fileTimings = new ConcurrentBag<(string fileName, double elapsedSeconds)>();
-
+            AssetsHelper.BaseFolder = baseFolder;
             double lastElapsed = 0;
             AssetsHelper.BaseFolder = baseFolder;
             Parallel.ForEach(
@@ -185,6 +189,8 @@ namespace AssetStudio
 
                     manager.Clear();
                     manager.assetsFileList.Clear();
+                    manager.PathIdToPptrs.Clear();
+
                 });
 
             var finalAssets = bag.ToList();
@@ -206,6 +212,7 @@ namespace AssetStudio
             stopwatch.Stop();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"BuildBothParallel {mapName} completed in {stopwatch.Elapsed.TotalSeconds:F2} seconds.");
+            //GC.EndNoGCRegion();
             Console.ResetColor();
         }
 

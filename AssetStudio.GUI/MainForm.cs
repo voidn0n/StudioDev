@@ -1,6 +1,7 @@
 ﻿
 using Newtonsoft.Json;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,17 +10,14 @@ using System.Drawing.Text;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows.Forms;
 using static AssetStudio.GUI.Studio;
-using OpenTK.Graphics;
-using OpenTK.Mathematics;
-using System.Text.RegularExpressions;
-using OpenTK.Audio.OpenAL;
 
 namespace AssetStudio.GUI
 {
@@ -107,6 +105,9 @@ namespace AssetStudio.GUI
             skipContainer.Checked = Properties.Settings.Default.skipContainer;
             assetsManager.ResolveDependencies = enableResolveDependencies.Checked;
             SkipContainer = Properties.Settings.Default.skipContainer;
+            multiBundle.Checked = Properties.Settings.Default.multiBundle;
+            skipBuildingTree.Checked = Properties.Settings.Default.skipBuildingTree;
+            meshLazyLoad.Checked = Properties.Settings.Default.meshLazyLoad;
             MiHoYoBinData.Encrypted = Properties.Settings.Default.encrypted;
             MiHoYoBinData.Key = Properties.Settings.Default.key;
             AssetsHelper.Minimal = Properties.Settings.Default.minimalAssetMap;
@@ -215,6 +216,19 @@ namespace AssetStudio.GUI
             BuildAssetStructures();
         }
 
+        private async void ForceGC_Click(object sender, EventArgs e)
+        {
+  
+            //random bs 
+
+            GC.Collect(0);
+            GC.Collect(2);
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+        }
+
         private async void loadFile_Click(object sender, EventArgs e)
         {
             openFileDialog1.InitialDirectory = openDirectoryBackup;
@@ -264,6 +278,30 @@ namespace AssetStudio.GUI
                 }
             }
         }
+        private async void decryptFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
+            {
+                var saveFolderDialog = new OpenFolderDialog();
+                saveFolderDialog.Title = "Select the save folder";
+                if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    var fileNames = openFileDialog1.FileNames;
+                    var savePath = saveFolderDialog.Folder;
+                    var extractedCount = await Task.Run(() => DecryptFile(fileNames, savePath));
+                    StatusStripUpdate($"Finished extracting {extractedCount} files.");
+
+                    _ = Task.Run(() =>
+                    {
+
+                        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+
+
+                        GC.Collect();
+                    });
+                }
+            }
+        }
 
         private async void extractFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -281,9 +319,36 @@ namespace AssetStudio.GUI
                 }
             }
         }
+        private async void DecryptFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var openFolderDialog = new OpenFolderDialog();
+            if (openFolderDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                var saveFolderDialog = new OpenFolderDialog();
+                saveFolderDialog.Title = "Select the save folder";
+                if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    var path = openFolderDialog.Folder;
+                    var savePath = saveFolderDialog.Folder;
+                    var extractedCount = await Task.Run(() => DecryptFolder(path, savePath));
+                    StatusStripUpdate($"Finished extracting {extractedCount} files.");
+
+                    _ = Task.Run(() =>
+                    {
+
+                        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+
+
+                        GC.Collect();
+                    });
+                }
+            }
+        }
 
         private async void BuildAssetStructures()
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             if (assetsManager.assetsFileList.Count == 0)
             {
                 StatusStripUpdate("No Unity file can be loaded.");
@@ -355,6 +420,9 @@ namespace AssetStudio.GUI
                 log += $" and {m_ObjectsCount - objectsCount} assets failed to read";
             }
             StatusStripUpdate(log);
+            stopwatch.Stop();
+            Logger.Perf($"BuildAssetStructures completed in {stopwatch.Elapsed.TotalSeconds:F2} seconds.");
+
         }
 
         private void typeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -478,11 +546,23 @@ namespace AssetStudio.GUI
         }
         private void partialLoad_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.partialLoad= partialLoad.Checked;
+            Properties.Settings.Default.partialLoad = partialLoad.Checked;
             Properties.Settings.Default.Save();
             AssetStudio.AssetsHelper.paritial = partialLoad.Checked;
         }
-        
+        private void onDemand_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.onDemand = onDemand.Checked;
+            Properties.Settings.Default.Save();
+            AssetStudio.AssetsHelper.onDemand = onDemand.Checked;
+        }
+        private void meshLazyLoad_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.meshLazyLoad = meshLazyLoad.Checked;
+            Properties.Settings.Default.Save();
+            AssetStudio.AssetsManager.meshLazyLoad = meshLazyLoad.Checked;
+        }
+
         private void enablePreview_Check(object sender, EventArgs e)
         {
             if (lastSelectedItem != null)
@@ -598,7 +678,7 @@ namespace AssetStudio.GUI
             if (e.KeyCode == Keys.Enter)
             {
                 e.SuppressKeyPress = true;
-                var textBox = sender as ToolStripTextBox; 
+                var textBox = sender as ToolStripTextBox;
                 string ext = textBox?.Text.Trim();
 
                 if (string.IsNullOrEmpty(ext))
@@ -611,7 +691,7 @@ namespace AssetStudio.GUI
                     ext = "." + ext;
 
                 Logger.Info($"Extension set to: {ext}");
-                Studio.Game.Ext = "*"+ext;
+                Studio.Game.Ext = "*" + ext;
             }
         }
 
@@ -1204,6 +1284,7 @@ namespace AssetStudio.GUI
 
         private void PreviewMesh(Mesh m_Mesh)
         {
+            m_Mesh.ProcessData();
             if (m_Mesh.m_VertexCount > 0)
             {
                 viewMatrixData = Matrix4.CreateRotationY(-(float)Math.PI / 4) * Matrix4.CreateRotationX(-(float)Math.PI / 6);
@@ -1506,7 +1587,7 @@ namespace AssetStudio.GUI
         {
             if (InvokeRequired)
             {
-                
+
                 var result = BeginInvoke(new Action(() => { progressBar1.Value = value; }));
                 result.AsyncWaitHandle.WaitOne();
             }
@@ -1600,6 +1681,12 @@ namespace AssetStudio.GUI
         private void exportSelectedAssetsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ExportAssets(ExportFilter.Selected, ExportType.Convert);
+        }
+        private void exportSelectedAssetsAsSceneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AssetStudio.GUI.Exporter.exportScene = true;
+            ExportAssets(ExportFilter.Selected, ExportType.Convert);
+
         }
 
         private void showOriginalFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1921,33 +2008,33 @@ namespace AssetStudio.GUI
                 string pattern = listSearch.Text.Substring(1);
                 var pathIdRegex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-          //      if (assetsManager.PathIDsByObjectCache == null)
-          //      {
-          //          var dumpPathIDRegex = new Regex(@"_PathID\s*=\s*(-?\d+)", RegexOptions.Compiled);
-          //          assetsManager.PathIDsByObjectCache = assetsManager.assetsFileList
-          //.SelectMany(file => file.ObjectsDic.Values)
-          //.Where(obj => obj.type.CanParse())
-          //.Select(obj =>
-          //{
-          //    try
-          //    {
-          //        var ids = dumpPathIDRegex.Matches(obj.Dump())
-          //            .Cast<Match>()
-          //            .Select(m => long.Parse(m.Groups[1].Value))
-          //            .ToList();
+                //      if (assetsManager.PathIDsByObjectCache == null)
+                //      {
+                //          var dumpPathIDRegex = new Regex(@"_PathID\s*=\s*(-?\d+)", RegexOptions.Compiled);
+                //          assetsManager.PathIDsByObjectCache = assetsManager.assetsFileList
+                //.SelectMany(file => file.ObjectsDic.Values)
+                //.Where(obj => obj.type.CanParse())
+                //.Select(obj =>
+                //{
+                //    try
+                //    {
+                //        var ids = dumpPathIDRegex.Matches(obj.Dump())
+                //            .Cast<Match>()
+                //            .Select(m => long.Parse(m.Groups[1].Value))
+                //            .ToList();
 
-          //        return new { obj, ids };
-          //    }
-          //    catch
-          //    {
-          //        Logger.Info($"FAILED pathid lookup (disable type parse) {obj.Name} {obj.m_PathID} {obj.type}");
-          //        return null; // Skip this object
-          //    }
-          //})
-          //.Where(x => x != null && x.ids.Count > 0)
-          //.ToDictionary(x => x.obj, x => x.ids);
+                //        return new { obj, ids };
+                //    }
+                //    catch
+                //    {
+                //        Logger.Info($"FAILED pathid lookup (disable type parse) {obj.Name} {obj.m_PathID} {obj.type}");
+                //        return null; // Skip this object
+                //    }
+                //})
+                //.Where(x => x != null && x.ids.Count > 0)
+                //.ToDictionary(x => x.obj, x => x.ids);
 
-          //      }
+                //      }
 
                 var pathIDsByObject = assetsManager.PathIdToPptrs;
                 var matchingObjects = pathIDsByObject
@@ -1989,7 +2076,7 @@ RegexOptions.Compiled
               catch
               {
                   Logger.Info($"FAILED pathid lookup (disable type parse) {obj.Name} {obj.m_PathID} {obj.type}");
-                  return null; 
+                  return null;
               }
           })
           .Where(x => x != null && x.ids.Count > 0)
@@ -2008,7 +2095,7 @@ RegexOptions.Compiled
                     .Where(x => matchingPathIDs.Contains(x.m_PathID))
                     .ToList();
             }
-            
+
 
             if (!string.IsNullOrWhiteSpace(listSearch.Text) && !listSearch.Text.StartsWith("#") && !listSearch.Text.StartsWith("!"))
             {
@@ -2055,6 +2142,7 @@ RegexOptions.Compiled
                             break;
                     }
                     await Studio.ExportAssets(saveFolderDialog.Folder, toExportAssets, exportType, Properties.Settings.Default.openAfterExport);
+                    AssetStudio.GUI.Exporter.exportScene = false;
                 }
             }
             else
@@ -2239,6 +2327,13 @@ RegexOptions.Compiled
 
             SkipContainer = skipContainer.Checked;
         }
+        private void SkipBuildingTree_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.skipBuildingTree = skipBuildingTree.Checked;
+            Properties.Settings.Default.Save();
+
+            SkipBuildingTree = skipBuildingTree.Checked;
+        }
         private void assetMapTypeMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             var assetMapType = Properties.Settings.Default.assetMapType;
@@ -2284,7 +2379,12 @@ RegexOptions.Compiled
 
             Studio.Game = GameManager.GetGame(Properties.Settings.Default.selectedGame);
             Logger.Info($"Target Game is {Studio.Game.Name}");
+            if (Studio.Game.Type == GameType.OPBR)
+            {
+                Studio.Game.Callback = GameHandler.HandleOPBR; // method matches Action<Game>
 
+                Studio.Game.Callback?.Invoke(Studio.Game);
+            }
             if (Studio.Game.Type.IsUnityCN())
             {
                 UnityCNManager.SetKey(Properties.Settings.Default.selectedUnityCNKey);
@@ -2440,7 +2540,7 @@ RegexOptions.Compiled
         {
             miscToolStripMenuItem.DropDown.Visible = false;
             InvokeUpdate(miscToolStripMenuItem, false);
-
+            AssetsHelper.forceSilent = true;
             var input = MapNameComboBox.Text;
             var selectedText = MapNameComboBox.SelectedText;
             var exportListType = (ExportListType)assetMapTypeMenuItem.DropDownItems.Cast<ToolStripMenuItem>().Select(x => x.Checked ? (int)x.Tag : 0).Sum();
@@ -2486,8 +2586,12 @@ RegexOptions.Compiled
                 //Logger.Info("Scanning for files...");
                 string searchPattern = string.IsNullOrWhiteSpace(Studio.Game.Ext) ? "*.*" : Studio.Game.Ext;
                 Logger.Info($"Scanning for files... {searchPattern}");
-                var files = Directory.GetFiles(openFolderDialog.Folder, searchPattern, SearchOption.AllDirectories).ToArray();
-
+                var files = Directory
+      .GetFiles(openFolderDialog.Folder, searchPattern, SearchOption.AllDirectories)
+      .Select(f => new FileInfo(f))       // Convert to FileInfo to access file size
+      .OrderByDescending(fi => fi.Length)           // Sort ascending by size (use OrderByDescending for largest first)
+      .Select(fi => fi.FullName)          // Get back full file path
+      .ToArray();
                 Logger.Info($"Found {files.Length} files");
 
                 var saveFolderDialog = new OpenFolderDialog();
@@ -2506,7 +2610,7 @@ RegexOptions.Compiled
         {
             miscToolStripMenuItem.DropDown.Visible = false;
             InvokeUpdate(miscToolStripMenuItem, false);
-
+            AssetsHelper.forceSilent = true;
             var input = MapNameComboBox.Text;
             var selectedText = MapNameComboBox.SelectedText;
             var exportListType = (ExportListType)assetMapTypeMenuItem.DropDownItems.Cast<ToolStripMenuItem>().Select(x => x.Checked ? (int)x.Tag : 0).Sum();
@@ -2552,8 +2656,12 @@ RegexOptions.Compiled
                 //Logger.Info("Scanning for files...");
                 string searchPattern = string.IsNullOrWhiteSpace(Studio.Game.Ext) ? "*.*" : Studio.Game.Ext;
                 Logger.Info($"Scanning for files... {searchPattern}");
-                var files = Directory.GetFiles(openFolderDialog.Folder, searchPattern, SearchOption.AllDirectories).ToArray();
-
+                var files = Directory
+.GetFiles(openFolderDialog.Folder, searchPattern, SearchOption.AllDirectories)
+.Select(f => new FileInfo(f))       // Convert to FileInfo to access file size
+.OrderByDescending(fi => fi.Length)           // Sort ascending by size (use OrderByDescending for largest first)
+.Select(fi => fi.FullName)          // Get back full file path
+.ToArray();
                 Logger.Info($"Found {files.Length} files");
 
                 var saveFolderDialog = new OpenFolderDialog();

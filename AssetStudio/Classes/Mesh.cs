@@ -2,7 +2,6 @@
 using System.Buffers.Binary;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace AssetStudio
@@ -414,9 +413,9 @@ namespace AssetStudio
                         }
                     }
                 }
-                if (reader.Game.Type.IsShiningNikki() && version[0] >=2019)
+                if (reader.Game.Type.IsShiningNikki() && version[0] >= 2019)
                 {
-                   var varintVertices = reader.ReadUInt8Array();
+                    var varintVertices = reader.ReadUInt8Array();
 
                 }
             }
@@ -515,8 +514,9 @@ namespace AssetStudio
         private bool m_CollisionMeshBaked = false;
 
         public static bool HasVertexColorSkinning(SerializedType type) => type.Match("413A501B79022BF2DF389A82002FC81F");
-      
+
         public List<uint> m_Indices = new List<uint>();
+        private bool isProcessed;
 
         public Mesh(ObjectReader reader) : base(reader)
         {
@@ -593,7 +593,7 @@ namespace AssetStudio
                     }
                     var m_KeepVertices = reader.ReadBoolean();
                     var m_KeepIndices = reader.ReadBoolean();
-                    if (reader.Game.Type.IsBH3() && HasVertexColorSkinning(reader.serializedType)) 
+                    if (reader.Game.Type.IsBH3() && HasVertexColorSkinning(reader.serializedType))
                     {
                         var m_VertexColorSkinning = reader.ReadBoolean();
                     }
@@ -781,12 +781,19 @@ namespace AssetStudio
                 reader.AlignStream();
                 m_StreamData = new StreamingInfo(reader);
             }
+            if (!AssetsManager.meshLazyLoad)
+            {
 
-            ProcessData();
+                ProcessData();
+            }
         }
 
-        private void ProcessData()
+        public void ProcessData()
         {
+            if (isProcessed)
+            {
+                return;
+            }
             if (!string.IsNullOrEmpty(m_StreamData?.path))
             {
                 if (m_VertexData.m_VertexCount > 0)
@@ -811,6 +818,7 @@ namespace AssetStudio
             }
 
             GetTriangles();
+            isProcessed = true;
         }
 
         private void ReadVertexData()
