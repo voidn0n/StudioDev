@@ -84,7 +84,8 @@ namespace AssetStudio
             }
             AssetsManager.loadFolder = path;
             MergeSplitAssets(path, true);
-            var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).ToList();
+            string searchPattern = string.IsNullOrWhiteSpace(Game.Ext) ? "*.*" : Game.Ext;
+            var files = Directory.GetFiles(path, searchPattern, SearchOption.AllDirectories).ToList();
             var toReadFile = ProcessingSplitFiles(files);
             Load(toReadFile);
 
@@ -141,6 +142,7 @@ namespace AssetStudio
                 ReadAssets();
                 ProcessAssets();
             }
+            assetsFileListHash.Clear();
             Logger.Perf($"ProcessAssets completed in {stopwatch.Elapsed.TotalSeconds:F2} seconds.");
 
         }
@@ -802,6 +804,22 @@ namespace AssetStudio
             Progress.Reset();
             foreach (var assetsFile in assetsFileList)
             {
+                foreach (var external in assetsFile.m_Externals)
+                {
+                    if (!assetsFileListHash.Contains(external.fileName))
+                    {
+                        var path = AssetsHelper.FindPath(external.fileName);
+
+                        if (string.IsNullOrEmpty(path))
+                        {
+                            Logger.Warn($"missing dependency {external.fileName} , misc->buildMap to find exact file name");
+                        }
+                        else
+                        {
+                            Logger.Warn($"missing dependency {external.fileName} in {path}");
+                        }
+                    }
+                }
                 foreach (var objectInfo in assetsFile.m_Objects)
                 {
                     if (tokenSource.IsCancellationRequested)
@@ -864,6 +882,7 @@ namespace AssetStudio
                     Progress.Report(++i, progressCount);
                 }
             }
+            assetsFileListHash.Clear();
         }
 
         private void ProcessAssets()

@@ -300,6 +300,12 @@ namespace AssetStudio
                     case GameType.SRU:
                         reader = DecryptSRU(reader);
                         break;
+                    case GameType.DawnOfKingdom:
+                        reader = DecryptDawnOfKingdom(reader);
+                        break;
+                    case GameType.GOZ:
+                        reader = DecryptGOZ(reader);
+                        break;
 
                 }
             }

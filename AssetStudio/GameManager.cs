@@ -67,6 +67,8 @@ namespace AssetStudio
             Games.Add(index++, new Game(GameType.SSTX));
             Games.Add(index++, new Game(GameType.LATALE));
             Games.Add(index++, new Game(GameType.SRU));
+            Games.Add(index++, new Game(GameType.DawnOfKingdom));
+            Games.Add(index++, new Game(GameType.GOZ));
 
         }
 
@@ -215,7 +217,9 @@ namespace AssetStudio
         InfinityKingdom,
         SSTX,
         LATALE,
-        SRU
+        SRU,
+        DawnOfKingdom,
+        GOZ
     }
 
     public static class GameTypes
@@ -258,6 +262,8 @@ namespace AssetStudio
         public static bool isEOS(this GameType type) => type == GameType.EOS;
         public static bool isSSTX(this GameType type) => type == GameType.SSTX;
         public static bool isLATALE(this GameType type) => type == GameType.LATALE;
+        public static bool isDawnOfKingdom(this GameType type) => type == GameType.DawnOfKingdom;
+        public static bool IsGOZ(this GameType type) => type == GameType.GOZ;
 
         public static bool IsGIGroup(this GameType type) => type switch
         {
