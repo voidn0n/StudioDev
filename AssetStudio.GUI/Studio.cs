@@ -31,9 +31,9 @@ namespace AssetStudio.GUI
         public static List<AssetItem> exportableAssets = new List<AssetItem>();
         public static List<AssetItem> visibleAssets = new List<AssetItem>();
         internal static Action<string> StatusStripUpdate = x => { };
-
+        
         public static int ExtractFolder(string path, string savePath)
-        {
+        {           
             int extractedCount = 0;
             Progress.Reset();
             string searchPattern = string.IsNullOrWhiteSpace(Studio.Game.Ext) ? "*.*" : Studio.Game.Ext;
@@ -342,6 +342,7 @@ namespace AssetStudio.GUI
             var objectAssetItemDic = new Dictionary<Object, AssetItem>(objectCount);
             var mihoyoBinDataNames = new List<(PPtr<Object>, string)>();
             var containers = new List<(PPtr<Object>, string)>();
+            //var tex2dArrayAssetList = new List<AssetItem>();
             Progress.Reset();
             foreach (var assetsFile in assetsManager.assetsFileList)
             {
@@ -363,6 +364,15 @@ namespace AssetStudio.GUI
                                 assetItem.FullSize = asset.byteSize + m_Texture2D.m_StreamData.size;
                             exportable = ClassIDType.Texture2D.CanExport();
                             break;
+                       /* case Texture2DArray m_Texture2DArray:
+                            if (!string.IsNullOrEmpty(m_Texture2DArray.m_StreamData?.path))
+                                assetItem.FullSize = asset.byteSize + m_Texture2DArray.m_StreamData.size;
+                            tex2dArrayAssetList.Add(assetItem);
+                            /*assetItem.Text = m_Texture2DArray.m_Name;
+                            
+                            exportable = true;
+                            exportable = ClassIDType.Texture2DArray.CanExport();
+                            break;*/
                         case AudioClip m_AudioClip:
                             if (!string.IsNullOrEmpty(m_AudioClip.m_Source))
                                 assetItem.FullSize = asset.byteSize + m_AudioClip.m_Size;
@@ -473,6 +483,22 @@ namespace AssetStudio.GUI
                     UpdateContainers();
                 }
             }
+            /*foreach (var tex2dAssetItem in tex2dArrayAssetList)
+            {
+                var m_Texture2DArray = (Texture2DArray)tex2dAssetItem.Asset;
+                for (var layer = 0; layer < m_Texture2DArray.m_Depth; layer++)
+                {
+                    var fakeObj = new Texture2D(m_Texture2DArray, layer);
+                    m_Texture2DArray.TextureList.Add(fakeObj);
+
+                    var fakeItem = new AssetItem(fakeObj)
+                    {
+                        Text = fakeObj.m_Name,
+                        Container = tex2dAssetItem.Container
+                    };
+                    exportableAssets.Add(fakeItem);
+                }
+            }*/
             foreach (var tmp in exportableAssets)
             {
                 if (assetsManager.tokenSource.IsCancellationRequested)
@@ -482,7 +508,7 @@ namespace AssetStudio.GUI
                 }
                 tmp.SetSubItems();
             }
-
+            //tex2dArrayAssetList.Clear();
             visibleAssets = exportableAssets;
             if (SkipBuildingTree)
             {

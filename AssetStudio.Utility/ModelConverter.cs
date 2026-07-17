@@ -6,6 +6,14 @@ using System.Text;
 using System.Collections;
 using System.IO;
 using System.Xml.Linq;
+using System.Security.Cryptography;
+using System.ComponentModel;
+using Newtonsoft.Json.Linq;
+using System.Runtime.InteropServices;
+using System.Diagnostics.Metrics;
+using static System.Net.Mime.MediaTypeNames;
+
+
 namespace AssetStudio
 {
     public class ModelConverter : IImported
@@ -26,7 +34,7 @@ namespace AssetStudio
         private Dictionary<Transform, ImportedFrame> transformDictionary = new Dictionary<Transform, ImportedFrame>();
         Dictionary<uint, string> morphChannelNames = new Dictionary<uint, string>();
 		Dictionary<string, string> additionalMeshes = new Dictionary<string, string>();
-
+        Dictionary<string, string> additionalMeshes2 = new Dictionary<string, string>();
         public ModelConverter(GameObject m_GameObject, Options options, AnimationClip[] animationList = null)
         {
             this.options = options;
@@ -84,6 +92,9 @@ namespace AssetStudio
             ConvertAnimations();
         }
 
+
+
+
         public ModelConverter(Animator m_Animator, Options options, AnimationClip[] animationList = null)
         {
             this.options = options;
@@ -97,11 +108,11 @@ namespace AssetStudio
             {
                 if (animationList != null)
                 {
-                foreach (var animationClip in animationList)
-                {
-                    animationClipHashSet.Add(animationClip);
+                    foreach (var animationClip in animationList)
+                    {
+                        animationClipHashSet.Add(animationClip);
+                    }
                 }
-            }
             }
             ConvertAnimations();
         }
@@ -118,6 +129,7 @@ namespace AssetStudio
         private void InitWithGameObject(GameObject m_GameObject, bool hasTransformHierarchy = true)
         {
             var m_Transform = m_GameObject.m_Transform;
+            //m_GameObject.assetsFile.ObjectsDic.
             if (!hasTransformHierarchy)
             {
                 ConvertTransforms(m_Transform, null);
@@ -156,6 +168,7 @@ namespace AssetStudio
                 {
                     if (i.TryGet<MonoBehaviour>(out var comp))
                     {
+                        
                         var type = comp.ToType();
                         var script = type["m_Script"] as OrderedDictionary;
                         long pathID = (long)script["m_PathID"];
@@ -166,7 +179,14 @@ namespace AssetStudio
                             {
                                 string transformPath = (string)entry["TransfromPath"];
                                 string resPath = (string)entry["MeshResPath"];
+
                                 additionalMeshes[transformPath] = resPath;
+                                if (AssetsHelper.loadCatalog)// && resPath.Contains("face"))
+                                {
+                                    string resPath2 = AssetsHelper.GetGFLContainer((string)entry["MeshResPath"]);
+                                    additionalMeshes2[transformPath] = resPath2;
+                                }
+
                             }
                         }
                     }
@@ -175,11 +195,14 @@ namespace AssetStudio
             ConvertMeshRenderer(m_Transform);
         }
 
+    
+        //Todo Cleanup and merge those 2 
         Object FindMesh(AssetsManager am, string name)
         {
             foreach(var i in am.assetsFileList)
             {
                 foreach (var j in i.Objects)
+                    
                     if (j.type == ClassIDType.Mesh)
                     {
                         if (j.Name == name)
@@ -188,6 +211,52 @@ namespace AssetStudio
             }
             return null;
         }
+
+        Object FindMeshByContainer(AssetsManager am, string container, string name)
+        {
+            List<Mesh> CandidateMeshes = new List<Mesh>();
+            foreach (var i in am.assetsFileList)
+            {
+                foreach (var j in i.Objects)
+                   
+                    if (j.type == ClassIDType.Mesh)
+                    {
+                        if (j.Name == name)
+                            CandidateMeshes.Add((Mesh)j);
+                    }
+            }
+            if (CandidateMeshes.Count > 0)
+            {
+                foreach (var candidate in CandidateMeshes)
+                {
+                    foreach (var obj in candidate.assetsFile.ObjectsDic)
+                    {
+                        if (obj.Value.type == ClassIDType.AssetBundle)
+                        {
+                            if (obj.Value is AssetBundle assetBundle)
+                            {
+                                if (assetBundle.m_Container != null && assetBundle.m_Container.Count > 0)
+                                {
+                                    foreach(var containerItem in assetBundle.m_Container)
+                                    {
+                                        if (containerItem.Key == container.ToString())
+                                        {
+                                           
+                                            return candidate;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                                
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+
         public class GakuBlendShape
         {
             public string BlendShapeName { get; set; }
@@ -630,17 +699,39 @@ namespace AssetStudio
         }
         private void ConvertMeshRenderer(Renderer meshR)
         {
+           
             var mesh = GetMesh(meshR);
             if (mesh == null)
+                
                 if (meshR.m_GameObject.TryGet(out var go))
                 {
-                    if (additionalMeshes.TryGetValue(go.Name, out var res))
+                
+                    if (additionalMeshes.TryGetValue(go.Name, out var res) || (additionalMeshes2.TryGetValue(go.Name, out var res2)))
                     {
-                        mesh = FindMesh(meshR.assetsFile.assetsManager, System.IO.Path.GetFileNameWithoutExtension(res)) as Mesh;
-                        if (mesh == null)
+
+                        if (AssetsHelper.loadCatalog)
                         {
-                            return;
+                            mesh = FindMeshByContainer(meshR.assetsFile.assetsManager, additionalMeshes2[go.Name], go.Name) as Mesh;
+                            if (mesh == null)
+                            {
+                                var temp = System.IO.Path.GetFileNameWithoutExtension(res);
+                                
+                                mesh = FindMesh(meshR.assetsFile.assetsManager, System.IO.Path.GetFileNameWithoutExtension(res)) as Mesh;
+                                if (mesh == null)
+                                {
+                                    return;
+                                }
+                            }
                         }
+                        else
+                        {
+                            mesh = FindMesh(meshR.assetsFile.assetsManager, System.IO.Path.GetFileNameWithoutExtension(res)) as Mesh;
+                            if (mesh == null)
+                            {
+                                return;
+                            }
+
+                        }     
                     }
                     else
                     {
@@ -651,7 +742,8 @@ namespace AssetStudio
                 {
                     return;
                 }
-                    
+
+            
             var iMesh = new ImportedMesh();
             meshR.m_GameObject.TryGet(out var m_GameObject2);
             iMesh.Path = GetTransformPath(m_GameObject2.m_Transform);
@@ -811,6 +903,7 @@ namespace AssetStudio
             {
                 meshR.m_GameObject.TryGet(out GameObject test);
                 var NN4GO = test.m_Components.Find(x => x.Name == "NN4SkinnedMeshRendererData");
+                
                 if (NN4GO != null)
                 {
                     if (NN4GO.TryGet(out MonoBehaviour NN4SkinnedMeshRendererData))
@@ -1017,10 +1110,11 @@ namespace AssetStudio
                     }
                 }
             }
-
-            return null;
+         
+          return null;
         }
-
+        
+        
         private string GetTransformPath(Transform transform)
         {
             if (transformDictionary.TryGetValue(transform, out var frame))
@@ -1150,9 +1244,9 @@ namespace AssetStudio
                     {
                         for (int i = 1; ; i++)
                         {
-
+                            
                             var name = m_Texture2D.m_Name + $" ({i}){ext}";
-                            if (m_Texture2D.m_Name == "RampMap_Linear_RGBAHalf")
+                            if (m_Texture2D.m_Name == "RampMap_Linear_RGBAHalf" || m_Texture2D.m_Name == "RampMap_Cpb_RGBAHalf")
                             {
                                 name = m_Texture2D.m_Name + "_" + m_Texture2D.m_PathID.ToString() + ext;
                             }
@@ -1171,7 +1265,7 @@ namespace AssetStudio
                     else
                     {
                         texture.Name = m_Texture2D.m_Name + ext;
-                        if (m_Texture2D.m_Name == "RampMap_Linear_RGBAHalf")
+                        if (m_Texture2D.m_Name == "RampMap_Linear_RGBAHalf" || m_Texture2D.m_Name == "RampMap_Cpb_RGBAHalf")
                         {
                             texture.Name = m_Texture2D.m_Name + "_" + m_Texture2D.m_PathID.ToString() + ext;
                         }

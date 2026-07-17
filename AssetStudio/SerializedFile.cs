@@ -36,7 +36,7 @@ namespace AssetStudio
         public static SerializedFileHeader ReadSerializedFileHeader(FileReader reader)
         {
             var header = new SerializedFileHeader();
-
+            
             // Read basic fields
             header.m_MetadataSize = reader.ReadUInt32();
             header.m_FileSize = reader.ReadUInt32(); // may be replaced later if large file

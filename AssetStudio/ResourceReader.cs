@@ -12,6 +12,8 @@ namespace AssetStudio
         private long offset;
         private long size;
         private BinaryReader reader;
+        //public int Size => (int)size;
+        public int Offset { get => (int)offset; }
 
         public int Size { get => (int)size; }
 

@@ -218,7 +218,7 @@ namespace AssetStudio.GUI
 
         private async void ForceGC_Click(object sender, EventArgs e)
         {
-  
+
             //random bs 
 
             GC.Collect(0);
@@ -570,6 +570,7 @@ namespace AssetStudio.GUI
                 switch (lastSelectedItem.Type)
                 {
                     case ClassIDType.Texture2D:
+                    case ClassIDType.Texture2DArrayImage:
                     case ClassIDType.Sprite:
                         {
                             if (enablePreview.Checked && imageTexture != null)
@@ -963,8 +964,13 @@ namespace AssetStudio.GUI
                         PreviewGameObject(m_GameObject);
                         break;
                     case Texture2D m_Texture2D:
+                        //case Texture2DArrayImage texture2DArrayImage:
+                        //PreviewTexture2D(assetItem, assetItem.Asset as Texture2D);
                         PreviewTexture2D(assetItem, m_Texture2D);
                         break;
+                   /* case Texture2DArray m_Texture2DArray:
+                        PreviewTexture2DArray(assetItem, m_Texture2DArray);
+                        break;*/
                     case AudioClip m_AudioClip:
                         PreviewAudioClip(assetItem, m_AudioClip);
                         break;
@@ -1074,6 +1080,15 @@ namespace AssetStudio.GUI
                 StatusStripUpdate("Unsupported image for preview");
             }
         }
+        /*private void PreviewTexture2DArray(AssetItem assetItem, Texture2DArray m_Texture2DArray)
+        {
+            assetItem.InfoText =
+                $"Width: {m_Texture2DArray.m_Width}\n" +
+                $"Height: {m_Texture2DArray.m_Height}\n" +
+                $"Graphics Format: {m_Texture2DArray.m_Format}\n" +
+                $"Texture Format: {m_Texture2DArray.m_Format.ToTextureFormat()}\n" +
+                $"Texture count: {m_Texture2DArray.m_Depth}";
+        }*/
 
         private void PreviewAudioClip(AssetItem assetItem, AudioClip m_AudioClip)
         {
@@ -3352,5 +3367,17 @@ RegexOptions.Compiled
             }
         }
         #endregion
+
+        private void toolStripSeparator12_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void LoadCatalog_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.loadCatalog = loadCatalog.Checked;
+            AssetStudio.AssetsHelper.loadCatalog = loadCatalog.Checked;
+            Properties.Settings.Default.Save();
+        }
     }
 }

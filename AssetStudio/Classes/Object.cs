@@ -25,7 +25,7 @@ namespace AssetStudio
         public uint byteSize;
 
         public virtual string Name => string.Empty;
-
+        //public Object() { }
         public Object(ObjectReader reader)
         {
             this.reader = reader;

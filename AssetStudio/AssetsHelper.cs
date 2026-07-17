@@ -22,6 +22,7 @@ namespace AssetStudio
         public const string MapName = "Maps";
         public static bool forceLoad = false;
         public static bool Minimal = true;
+        public static bool loadCatalog = false;
         public static CancellationTokenSource tokenSource = new CancellationTokenSource();
 
         public static string BaseFolder = "";
@@ -30,6 +31,7 @@ namespace AssetStudio
         private static AssetsManager assetsManager = new AssetsManager() { Silent = true, SkipProcess = true, ResolveDependencies = false };
         public static bool paritial;
         public static bool onDemand;
+        static Dictionary<string, string> GFLHashMap;
 
         public static bool forceSilent { get; set; }
         public static class EntryCache
@@ -207,7 +209,36 @@ namespace AssetStudio
             }
             return files;
         }
+        public static string[] ProcessGFLCatalog(string[] files)
+        {
+            if (File.Exists("meshres_hashmap.json") && loadCatalog)
+            {
+                var json = File.ReadAllText("meshres_hashmap.json");
+                GFLHashMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+            }
+            return files;
+        }
+        public static string GetGFLContainer(string inputBytes)
+        {
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            {
+                byte[] input = Encoding.Unicode.GetBytes(inputBytes);
+                byte[] hashBytes = md5.ComputeHash(input);  
+                string catalogHash = BitConverter.ToString(hashBytes);
+                if (GFLHashMap.ContainsKey(catalogHash))
+                {
+                    return GFLHashMap[catalogHash];
+                }
+                else
+                {
+                    Logger.Info(catalogHash + " not in hashmap");
+                    return null;
+                }
+                
+            }
 
+              
+        }
         public static void BuildCABMap(string[] files, string mapName, string baseFolder, Game game)
         {
             Logger.Info("Building CABMap...");
@@ -523,6 +554,7 @@ namespace AssetStudio
                         {
                             case ClassIDType.AssetBundle when ClassIDType.AssetBundle.CanParse():
                                 var assetBundle = new AssetBundle(objectReader);
+                                
                                 foreach (var m_Container in assetBundle.m_Container)
                                 {
                                     var preloadIndex = m_Container.Value.preloadIndex;
@@ -594,6 +626,7 @@ namespace AssetStudio
                             case ClassIDType.Sprite when ClassIDType.Sprite.CanExport():
                             case ClassIDType.TextAsset when ClassIDType.TextAsset.CanExport():
                             case ClassIDType.Texture2D when ClassIDType.Texture2D.CanExport():
+                            //case ClassIDType.Texture2DArray when ClassIDType.Texture2DArray.CanExport():
                             case ClassIDType.VideoClip when ClassIDType.VideoClip.CanExport():
                             case ClassIDType.AudioClip when ClassIDType.AudioClip.CanExport():
                             case ClassIDType.AnimationClip when ClassIDType.AnimationClip.CanExport():

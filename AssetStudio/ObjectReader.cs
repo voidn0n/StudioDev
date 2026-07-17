@@ -8,7 +8,7 @@ namespace AssetStudio
         public Game Game;
         public long m_PathID;
         public long byteStart;
-        public uint byteSize;
+        public uint byteSize;    
         public ClassIDType type;
         public SerializedType serializedType;
         public BuildTarget platform;
@@ -19,11 +19,11 @@ namespace AssetStudio
 
         public ObjectReader(EndianBinaryReader reader, SerializedFile assetsFile, ObjectInfo objectInfo, Game game) : base(reader.BaseStream, reader.Endian)
         {
-            this.assetsFile = assetsFile;
+            this.assetsFile = assetsFile;          
             Game = game;
             m_PathID = objectInfo.m_PathID;
             byteStart = objectInfo.byteStart;
-            byteSize = objectInfo.byteSize;
+            byteSize = objectInfo.byteSize;         
             if (FastEnumUtility.FastEnum.IsDefined<ClassIDType>((ClassIDType)objectInfo.classID))
                 type = (ClassIDType)objectInfo.classID;
             else
@@ -32,7 +32,7 @@ namespace AssetStudio
             serializedType = objectInfo.serializedType;
             platform = assetsFile.m_TargetPlatform;
             m_Version = assetsFile.header.m_Version;
-
+            
             if (Logger.Flags == LoggerEvent.Verbose)
             {
                 Logger.Verbose($"Initialized reader for {type} object with {m_PathID} in file {assetsFile.fileName} !!");

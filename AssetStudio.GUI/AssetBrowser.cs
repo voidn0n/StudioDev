@@ -177,6 +177,11 @@ namespace AssetStudio.GUI
                         assetItem.FullSize = asset.byteSize + m_Texture2D.m_StreamData.size;
                     exportable = ClassIDType.Texture2D.CanExport();
                     break;
+                /*case Texture2DArray m_Texture2DArray:
+                    if (!string.IsNullOrEmpty(m_Texture2DArray.m_StreamData?.path))
+                        assetItem.FullSize = asset.byteSize + m_Texture2DArray.m_StreamData.size;
+                    exportable = ClassIDType.Texture2DArray.CanExport();
+                    break;*/
                 case AudioClip m_AudioClip:
                     if (!string.IsNullOrEmpty(m_AudioClip.m_Source))
                         assetItem.FullSize = asset.byteSize + m_AudioClip.m_Size;

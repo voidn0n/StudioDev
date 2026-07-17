@@ -61,6 +61,10 @@ namespace AssetStudio
             {
                 toReadFile = AssetsHelper.ProcessExtraFiles(toReadFile);
             }
+            if (AssetsHelper.loadCatalog)
+            {
+                toReadFile = AssetsHelper.ProcessGFLCatalog(toReadFile);
+            }
             if (ResolveDependencies)
                 toReadFile = AssetsHelper.ProcessDependencies(toReadFile);
             Load(toReadFile);
@@ -859,6 +863,7 @@ namespace AssetStudio
                             ClassIDType.SpriteAtlas when ClassIDType.SpriteAtlas.CanParse() => new SpriteAtlas(objectReader),
                             ClassIDType.TextAsset when ClassIDType.TextAsset.CanParse() => new TextAsset(objectReader),
                             ClassIDType.Texture2D when ClassIDType.Texture2D.CanParse() => new Texture2D(objectReader),
+                            //ClassIDType.Texture2DArray when ClassIDType.Texture2DArray.CanParse() => new Texture2DArray(objectReader),
                             ClassIDType.Transform when ClassIDType.Transform.CanParse() => new Transform(objectReader),
                             ClassIDType.VideoClip when ClassIDType.VideoClip.CanParse() => new VideoClip(objectReader),
                             ClassIDType.ResourceManager when ClassIDType.ResourceManager.CanParse() => new ResourceManager(objectReader),

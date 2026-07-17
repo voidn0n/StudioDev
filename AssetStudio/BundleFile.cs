@@ -958,7 +958,7 @@ FilterBlocksWithRemaining(List<StorageBlock> blocks, Node dirInfo)
 
 
                                 blocksStream.Write(uncompressedBytesSpan);
-                                Logger.Verbose($"first bytes of block decompress[{initial + i}] : {Convert.ToHexString(uncompressedBytesSpan.ToArray(), 0, 32)}");
+                                Logger.Verbose($"first bytes of block decompress[{initial + i}] : {Convert.ToHexString(uncompressedBytesSpan.ToArray(), 0, Math.Min(32, uncompressedBytesSpan.Length))}");
                                 //using (var fs = new FileStream("GF@BS", FileMode.Append, FileAccess.Write, FileShare.None))
                                 //{
                                 //    fs.Write(uncompressedBytesSpan.ToArray(), 0, uncompressedBytes.Length);
