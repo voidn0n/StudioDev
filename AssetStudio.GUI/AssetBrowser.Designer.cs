@@ -40,6 +40,7 @@ namespace AssetStudio.GUI
             assetDataGridView = new DataGridView();
             tableLayoutPanel1 = new TableLayoutPanel();
             tableLayoutPanel3 = new TableLayoutPanel();
+            sourceCabTextBox = new TextBox();
             sourceTextBox = new TextBox();
             pathTextBox = new TextBox();
             nameTextBox = new TextBox();
@@ -65,22 +66,20 @@ namespace AssetStudio.GUI
             tableLayoutPanel2.Controls.Add(loadSelected, 2, 0);
             tableLayoutPanel2.Controls.Add(exportSelected, 3, 0);
             tableLayoutPanel2.Controls.Add(exportSelectedAsScene, 4, 0);
-            tableLayoutPanel2.Location = new System.Drawing.Point(3, 4);
-            tableLayoutPanel2.Margin = new Padding(3, 4, 3, 4);
+            tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 1;
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 39F));
-            tableLayoutPanel2.Size = new System.Drawing.Size(593, 39);
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 29F));
+            tableLayoutPanel2.Size = new System.Drawing.Size(627, 29);
             tableLayoutPanel2.TabIndex = 3;
             // 
             // loadAssetMap
             // 
             loadAssetMap.Dock = DockStyle.Fill;
-            loadAssetMap.Location = new System.Drawing.Point(3, 4);
-            loadAssetMap.Margin = new Padding(3, 4, 3, 4);
+            loadAssetMap.Location = new System.Drawing.Point(3, 3);
             loadAssetMap.Name = "loadAssetMap";
-            loadAssetMap.Size = new System.Drawing.Size(126, 31);
+            loadAssetMap.Size = new System.Drawing.Size(150, 23);
             loadAssetMap.TabIndex = 0;
             loadAssetMap.Text = "Load AssetMap";
             loadAssetMap.UseVisualStyleBackColor = true;
@@ -89,10 +88,9 @@ namespace AssetStudio.GUI
             // clear
             // 
             clear.Dock = DockStyle.Fill;
-            clear.Location = new System.Drawing.Point(135, 4);
-            clear.Margin = new Padding(3, 4, 3, 4);
+            clear.Location = new System.Drawing.Point(159, 3);
             clear.Name = "clear";
-            clear.Size = new System.Drawing.Size(60, 31);
+            clear.Size = new System.Drawing.Size(72, 23);
             clear.TabIndex = 1;
             clear.Text = "Clear";
             clear.UseVisualStyleBackColor = true;
@@ -101,10 +99,9 @@ namespace AssetStudio.GUI
             // loadSelected
             // 
             loadSelected.Dock = DockStyle.Fill;
-            loadSelected.Location = new System.Drawing.Point(201, 4);
-            loadSelected.Margin = new Padding(3, 4, 3, 4);
+            loadSelected.Location = new System.Drawing.Point(237, 3);
             loadSelected.Name = "loadSelected";
-            loadSelected.Size = new System.Drawing.Size(126, 31);
+            loadSelected.Size = new System.Drawing.Size(150, 23);
             loadSelected.TabIndex = 2;
             loadSelected.Text = "Load Selected";
             loadSelected.UseVisualStyleBackColor = true;
@@ -113,10 +110,9 @@ namespace AssetStudio.GUI
             // exportSelected
             // 
             exportSelected.Dock = DockStyle.Fill;
-            exportSelected.Location = new System.Drawing.Point(333, 4);
-            exportSelected.Margin = new Padding(3, 4, 3, 4);
+            exportSelected.Location = new System.Drawing.Point(393, 3);
             exportSelected.Name = "exportSelected";
-            exportSelected.Size = new System.Drawing.Size(174, 31);
+            exportSelected.Size = new System.Drawing.Size(152, 23);
             exportSelected.TabIndex = 3;
             exportSelected.Text = "Export Selected";
             exportSelected.UseVisualStyleBackColor = true;
@@ -125,10 +121,9 @@ namespace AssetStudio.GUI
             // exportSelectedAsScene
             // 
             exportSelectedAsScene.Dock = DockStyle.Fill;
-            exportSelectedAsScene.Location = new System.Drawing.Point(513, 4);
-            exportSelectedAsScene.Margin = new Padding(3, 4, 3, 4);
+            exportSelectedAsScene.Location = new System.Drawing.Point(551, 3);
             exportSelectedAsScene.Name = "exportSelectedAsScene";
-            exportSelectedAsScene.Size = new System.Drawing.Size(77, 31);
+            exportSelectedAsScene.Size = new System.Drawing.Size(73, 23);
             exportSelectedAsScene.TabIndex = 4;
             exportSelectedAsScene.Text = "SC";
             exportSelectedAsScene.UseVisualStyleBackColor = true;
@@ -141,12 +136,11 @@ namespace AssetStudio.GUI
             assetDataGridView.AllowUserToResizeRows = false;
             assetDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             assetDataGridView.Dock = DockStyle.Fill;
-            assetDataGridView.Location = new System.Drawing.Point(3, 98);
-            assetDataGridView.Margin = new Padding(3, 4, 3, 4);
+            assetDataGridView.Location = new System.Drawing.Point(3, 73);
             assetDataGridView.Name = "assetDataGridView";
             assetDataGridView.ReadOnly = true;
             assetDataGridView.RowTemplate.Height = 25;
-            assetDataGridView.Size = new System.Drawing.Size(593, 351);
+            assetDataGridView.Size = new System.Drawing.Size(627, 269);
             assetDataGridView.TabIndex = 2;
             assetDataGridView.VirtualMode = true;
             assetDataGridView.CellValueNeeded += AssetDataGridView_CellValueNeeded;
@@ -160,100 +154,104 @@ namespace AssetStudio.GUI
             tableLayoutPanel1.Controls.Add(assetDataGridView, 0, 2);
             tableLayoutPanel1.Controls.Add(tableLayoutPanel2, 0, 0);
             tableLayoutPanel1.Controls.Add(tableLayoutPanel3, 0, 1);
-            tableLayoutPanel1.Location = new System.Drawing.Point(14, 16);
-            tableLayoutPanel1.Margin = new Padding(3, 4, 3, 4);
+            tableLayoutPanel1.Location = new System.Drawing.Point(12, 12);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 3;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 47F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 47F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle());
-            tableLayoutPanel1.Size = new System.Drawing.Size(599, 444);
+            tableLayoutPanel1.Size = new System.Drawing.Size(633, 345);
             tableLayoutPanel1.TabIndex = 3;
             // 
             // tableLayoutPanel3
             // 
-            tableLayoutPanel3.ColumnCount = 5;
-            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableLayoutPanel3.ColumnCount = 6;
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.666666F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.666666F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.666666F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.666666F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.666666F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.666666F));
+            tableLayoutPanel3.Controls.Add(sourceCabTextBox, 5, 0);
             tableLayoutPanel3.Controls.Add(sourceTextBox, 0, 0);
             tableLayoutPanel3.Controls.Add(pathTextBox, 0, 0);
             tableLayoutPanel3.Controls.Add(nameTextBox, 0, 0);
             tableLayoutPanel3.Controls.Add(containerTextBox, 0, 0);
             tableLayoutPanel3.Controls.Add(typeTextBox, 4, 0);
             tableLayoutPanel3.Dock = DockStyle.Fill;
-            tableLayoutPanel3.Location = new System.Drawing.Point(3, 51);
-            tableLayoutPanel3.Margin = new Padding(3, 4, 3, 4);
+            tableLayoutPanel3.Location = new System.Drawing.Point(3, 38);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.RowCount = 1;
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel3.Size = new System.Drawing.Size(593, 39);
+            tableLayoutPanel3.Size = new System.Drawing.Size(627, 29);
             tableLayoutPanel3.TabIndex = 4;
+            // 
+            // sourceCabTextBox
+            // 
+            sourceCabTextBox.Dock = DockStyle.Fill;
+            sourceCabTextBox.Location = new System.Drawing.Point(523, 3);
+            sourceCabTextBox.Name = "sourceCabTextBox";
+            sourceCabTextBox.PlaceholderText = "SourceCab";
+            sourceCabTextBox.Size = new System.Drawing.Size(101, 23);
+            sourceCabTextBox.TabIndex = 9;
+            sourceCabTextBox.KeyPress += SourceCabTextBox_KeyPress;
             // 
             // sourceTextBox
             // 
             sourceTextBox.Dock = DockStyle.Fill;
-            sourceTextBox.Location = new System.Drawing.Point(239, 4);
-            sourceTextBox.Margin = new Padding(3, 4, 3, 4);
+            sourceTextBox.Location = new System.Drawing.Point(315, 3);
             sourceTextBox.Name = "sourceTextBox";
             sourceTextBox.PlaceholderText = "Source";
-            sourceTextBox.Size = new System.Drawing.Size(112, 27);
+            sourceTextBox.Size = new System.Drawing.Size(98, 23);
             sourceTextBox.TabIndex = 6;
             sourceTextBox.KeyPress += SourceTextBox_KeyPress;
             // 
             // pathTextBox
             // 
             pathTextBox.Dock = DockStyle.Fill;
-            pathTextBox.Location = new System.Drawing.Point(357, 4);
-            pathTextBox.Margin = new Padding(3, 4, 3, 4);
+            pathTextBox.Location = new System.Drawing.Point(211, 3);
             pathTextBox.Name = "pathTextBox";
             pathTextBox.PlaceholderText = "PathID";
-            pathTextBox.Size = new System.Drawing.Size(112, 27);
+            pathTextBox.Size = new System.Drawing.Size(98, 23);
             pathTextBox.TabIndex = 7;
             pathTextBox.KeyPress += PathTextBox_KeyPress;
             // 
             // nameTextBox
             // 
             nameTextBox.Dock = DockStyle.Fill;
-            nameTextBox.Location = new System.Drawing.Point(3, 4);
-            nameTextBox.Margin = new Padding(3, 4, 3, 4);
+            nameTextBox.Location = new System.Drawing.Point(107, 3);
             nameTextBox.Name = "nameTextBox";
             nameTextBox.PlaceholderText = "Name";
-            nameTextBox.Size = new System.Drawing.Size(112, 27);
+            nameTextBox.Size = new System.Drawing.Size(98, 23);
             nameTextBox.TabIndex = 4;
             nameTextBox.KeyPress += NameTextBox_KeyPress;
             // 
             // containerTextBox
             // 
             containerTextBox.Dock = DockStyle.Fill;
-            containerTextBox.Location = new System.Drawing.Point(121, 4);
-            containerTextBox.Margin = new Padding(3, 4, 3, 4);
+            containerTextBox.Location = new System.Drawing.Point(3, 3);
             containerTextBox.Name = "containerTextBox";
             containerTextBox.PlaceholderText = "Container";
-            containerTextBox.Size = new System.Drawing.Size(112, 27);
+            containerTextBox.Size = new System.Drawing.Size(98, 23);
             containerTextBox.TabIndex = 5;
             containerTextBox.KeyPress += ContainerTextBox_KeyPress;
             // 
             // typeTextBox
             // 
             typeTextBox.Dock = DockStyle.Fill;
-            typeTextBox.Location = new System.Drawing.Point(475, 4);
-            typeTextBox.Margin = new Padding(3, 4, 3, 4);
+            typeTextBox.Location = new System.Drawing.Point(419, 3);
             typeTextBox.Name = "typeTextBox";
             typeTextBox.PlaceholderText = "Type";
-            typeTextBox.Size = new System.Drawing.Size(115, 27);
+            typeTextBox.Size = new System.Drawing.Size(98, 23);
             typeTextBox.TabIndex = 8;
             typeTextBox.KeyPress += TypeTextBox_KeyPress;
             // 
             // AssetBrowser
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(626, 476);
+            ClientSize = new System.Drawing.Size(657, 369);
             Controls.Add(tableLayoutPanel1);
-            Margin = new Padding(3, 4, 3, 4);
             Name = "AssetBrowser";
             ShowIcon = false;
             StartPosition = FormStartPosition.CenterScreen;
@@ -284,6 +282,7 @@ namespace AssetStudio.GUI
         private TextBox pathTextBox;
         private TextBox nameTextBox;
         private TextBox containerTextBox;
+        private TextBox sourceCabTextBox;
         private TextBox typeTextBox;
     }
 }

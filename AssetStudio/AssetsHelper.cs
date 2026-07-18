@@ -539,14 +539,17 @@ namespace AssetStudio
                     }
                     var objectReader = new ObjectReader(assetsFile.reader, assetsFile, objInfo, assetsManager.Game);
                     var obj = new Object(objectReader);
+                    
                     var asset = new AssetEntry()
                     {
                         Source = file,
                         PathID = objectReader.m_PathID,
                         Type = objectReader.type,
-                        Container = ""
+                        Container = "",
+                        SourceCab = objectReader.assetsFile.fileName
+                        
                     };
-
+                    
                     var exportable = false;
                     try
                     {
@@ -673,7 +676,7 @@ namespace AssetStudio
                             Source = file,
                             PathID = gameObject.m_PathID,
                             Type = gameObject.type,
-                            Container = ""
+                            Container = "",
                         };
                         tmp.Name = gameObject.m_Name;
                         if (!objectAssetItemDic.ContainsKey(gameObject))

@@ -820,14 +820,14 @@ namespace AssetStudio
                     {
                         var path = AssetsHelper.FindPath(external.fileName);
 
-                        if (string.IsNullOrEmpty(path))
+                        /*if (string.IsNullOrEmpty(path))
                         {
                             Logger.Warn($"missing dependency {external.fileName} , misc->buildMap to find exact file name");
                         }
                         else
                         {
                             Logger.Warn($"missing dependency {external.fileName} in {path}");
-                        }
+                        }*/
                     }
                 }
                 foreach (var objectInfo in assetsFile.m_Objects)

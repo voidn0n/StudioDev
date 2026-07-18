@@ -108,6 +108,7 @@ namespace AssetStudio.GUI
                         if (assetsManager.assetsFileList.Count > 0)
                         {
                             BuildAssetData(toExportAssets, entries);
+                            //Todo add toggle for export type in assetbrowser
                             await ExportAssets(saveFolderDialog.Folder, toExportAssets, ExportType.Convert, i == files.Count - 1);
                         }
                         toExportAssets.Clear();
@@ -330,6 +331,16 @@ namespace AssetStudio.GUI
                 FilterAssetDataGrid();
             }
         }
+        private void SourceCabTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (sender is TextBox sourceCabBox && e.KeyChar == (char)Keys.Enter)
+            {
+                var value = sourceCabTextBox.Text;
+
+                TryAddFilter("SourceCab", value);
+                FilterAssetDataGrid();
+            }
+        }
         private void AssetDataGridView_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
             if (_assetEntries.Count != 0 && e.RowIndex <= _assetEntries.Count)
@@ -342,6 +353,7 @@ namespace AssetStudio.GUI
                     2 => assetEntry.Source,
                     3 => assetEntry.PathID,
                     4 => assetEntry.Type,
+                    5 => assetEntry.SourceCab,
                     _ => ""
                 };
             }
@@ -381,6 +393,7 @@ namespace AssetStudio.GUI
                     2 => x => x.Source,
                     3 => x => x.PathID,
                     4 => x => x.Type.ToString(),
+                    5 => x => x.SourceCab,
                     _ => x => ""
                 };
 

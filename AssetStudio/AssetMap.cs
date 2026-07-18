@@ -39,6 +39,7 @@ namespace AssetStudio
         private string _name;
         private string _container;
         private string _source;
+        private string _sourceCab;
 
         [Key(0)]
         public string Name
@@ -67,6 +68,13 @@ namespace AssetStudio
         [Key(4)]
         public ClassIDType Type { get; set; }
 
+        [Key(5)]
+        public string SourceCab 
+        {
+             get => _sourceCab; 
+             set => _sourceCab = StringCache.Get(value);  
+        }
+
         public bool Matches(Dictionary<string, Regex> filters)
         {
             var matches = new List<bool>();
@@ -79,6 +87,7 @@ namespace AssetStudio
                     string value when value.Equals(nameof(Source), StringComparison.OrdinalIgnoreCase) => filter.Value.IsMatch(Source),
                     string value when value.Equals(nameof(PathID), StringComparison.OrdinalIgnoreCase) => filter.Value.IsMatch(PathID.ToString()),
                     string value when value.Equals(nameof(Type), StringComparison.OrdinalIgnoreCase) => filter.Value.IsMatch(Type.ToString()),
+                    string value when value.Equals(nameof(SourceCab), StringComparison.OrdinalIgnoreCase) => filter.Value.IsMatch(SourceCab),
                     _ => throw new NotImplementedException()
                 });
             }
