@@ -1,4 +1,6 @@
-﻿namespace AssetStudio
+﻿using System;
+
+namespace AssetStudio
 {
     public class StreamingInfo
     {
@@ -58,15 +60,49 @@
     {
         public int m_Width;
         public int m_Height;
+        public int m_CompleteImageSize;
         public TextureFormat m_TextureFormat;
         public bool m_MipMap;
         public int m_MipCount;
         public GLTextureSettings m_TextureSettings;
+        public int m_ImageCount;
         public ResourceReader image_data;
         public StreamingInfo m_StreamData;
 
         private static bool HasGNFTexture(SerializedType type) => type.Match("1D52BB98AA5F54C67C22C39E8B2E400F");
         private static bool HasExternalMipRelativeOffset(SerializedType type) => type.Match("1D52BB98AA5F54C67C22C39E8B2E400F", "5390A985F58D5524F95DB240E8789704");
+        public Texture2D() { }
+        public Texture2D(Texture2DArray m_Texture2DArray, int layer)
+        {
+            reader = m_Texture2DArray.reader;
+            assetsFile = m_Texture2DArray.assetsFile;
+            version = m_Texture2DArray.version;
+            platform = m_Texture2DArray.platform;
+
+            m_Name = $"{m_Texture2DArray.m_Name}_{layer + 1}";
+            type = ClassIDType.Texture2DArrayImage;
+            m_PathID = -1;
+
+            m_Width = m_Texture2DArray.m_Width;
+            m_Height = m_Texture2DArray.m_Height;
+            m_TextureFormat = m_Texture2DArray.m_Format.ToTextureFormat();
+            m_MipCount = m_Texture2DArray.m_MipCount;
+            m_TextureSettings = m_Texture2DArray.m_TextureSettings;
+            m_StreamData = m_Texture2DArray.m_StreamData;
+            m_MipMap = m_MipCount > 1;
+            m_ImageCount = 1;
+
+            //var imgActualDataSize = GetImageDataSize(m_TextureFormat);
+            //var mipmapSize = (int)(m_Texture2DArray.m_DataSize / m_Texture2DArray.m_Depth - imgActualDataSize);
+            m_CompleteImageSize = (int)m_Texture2DArray.m_DataSize / m_Texture2DArray.m_Depth;
+            var offset = layer * m_CompleteImageSize + m_Texture2DArray.image_data.Offset;
+
+            image_data = !string.IsNullOrEmpty(m_StreamData?.path)
+                ? new ResourceReader(m_StreamData.path, assetsFile, offset, m_CompleteImageSize)
+                : new ResourceReader(reader, offset, m_CompleteImageSize);
+
+            byteSize = (uint)(m_Width * m_Height) * 4;
+        }
         public Texture2D(ObjectReader reader) : base(reader)
         {
             m_Width = reader.ReadInt32();
@@ -127,7 +163,7 @@
             {
                 var m_StreamingMipmapsPriority = reader.ReadInt32();
             }
-            var m_ImageCount = reader.ReadInt32();
+            m_ImageCount = reader.ReadInt32();
             var m_TextureDimension = reader.ReadInt32();
             m_TextureSettings = new GLTextureSettings(reader);
             if (version[0] >= 3) //3.0 and up
@@ -164,8 +200,65 @@
             }
             image_data = resourceReader;
         }
+        private int GetImageDataSize(TextureFormat textureFormat)
+            {
+                var imgDataSize = m_Width * m_Height;
+                switch (textureFormat)
+                {
+                    case TextureFormat.ASTC_RGBA_5x5:
+                        // https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/
+                        imgDataSize = (int)(Math.Floor((m_Width + 4) / 5f) * Math.Floor((m_Height + 4) / 5f) * 16);
+                        break;
+                    case TextureFormat.ASTC_RGBA_6x6:
+                        imgDataSize = (int)(Math.Floor((m_Width + 5) / 6f) * Math.Floor((m_Height + 5) / 6f) * 16);
+                        break;
+                    case TextureFormat.ASTC_RGBA_8x8:
+                        imgDataSize = (int)(Math.Floor((m_Width + 7) / 8f) * Math.Floor((m_Height + 7) / 8f) * 16);
+                        break;
+                    case TextureFormat.ASTC_RGBA_10x10:
+                        imgDataSize = (int)(Math.Floor((m_Width + 9) / 10f) * Math.Floor((m_Height + 9) / 10f) * 16);
+                        break;
+                    case TextureFormat.ASTC_RGBA_12x12:
+                        imgDataSize = (int)(Math.Floor((m_Width + 11) / 12f) * Math.Floor((m_Height + 11) / 12f) * 16);
+                        break;
+                    case TextureFormat.DXT1:
+                    case TextureFormat.EAC_R:
+                    case TextureFormat.EAC_R_SIGNED:
+                    case TextureFormat.ATC_RGB4:
+                    case TextureFormat.ETC_RGB4:
+                    case TextureFormat.ETC2_RGB:
+                    case TextureFormat.ETC2_RGBA1:
+                    case TextureFormat.PVRTC_RGBA4:
+                        imgDataSize /= 2;
+                        break;
+                    case TextureFormat.PVRTC_RGBA2:
+                        imgDataSize /= 4;
+                        break;
+                    case TextureFormat.R16:
+                    case TextureFormat.RGB565:
+                        imgDataSize *= 2;
+                        break;
+                    case TextureFormat.RGB24:
+                        imgDataSize *= 3;
+                        break;
+                    case TextureFormat.RG32:
+                    case TextureFormat.RGBA32:
+                    case TextureFormat.ARGB32:
+                    case TextureFormat.BGRA32:
+                    case TextureFormat.RGB9e5Float:
+                        imgDataSize *= 4;
+                        break;
+                    case TextureFormat.RGB48:
+                        imgDataSize *= 6;
+                        break;
+                    case TextureFormat.RGBAHalf:
+                    case TextureFormat.RGBA64:
+                        imgDataSize *= 8;
+                        break;
+                }
+                return imgDataSize;
+        }
     }
-
     public enum TextureFormat
     {
         Alpha8 = 1,

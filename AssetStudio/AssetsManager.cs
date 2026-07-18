@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Runtime;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,10 @@ namespace AssetStudio
         public string SpecifyUnityVersion;
         public CancellationTokenSource tokenSource = new CancellationTokenSource();
         public List<SerializedFile> assetsFileList = new List<SerializedFile>();
+
+        public List<KeyValuePair<string, string>> sceneHashes = new List<KeyValuePair<string, string>>();
+
+        //public List<AssetBundle> sceneAssetBundles = new List<AssetBundle>();
 
         internal Dictionary<string, int> assetsFileIndexCache = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         internal Dictionary<string, BinaryReader> resourceFileReaders = new Dictionary<string, BinaryReader>(StringComparer.OrdinalIgnoreCase);
@@ -777,13 +782,12 @@ namespace AssetStudio
                 assetsFile.reader.Close();
             }
             assetsFileList.Clear();
-
+            sceneHashes.Clear();
             foreach (var resourceFileReader in resourceFileReaders)
             {
                 resourceFileReader.Value.Close();
             }
             resourceFileReaders.Clear();
-
             assetsFileIndexCache.Clear();
 
             tokenSource.Dispose();
@@ -806,8 +810,10 @@ namespace AssetStudio
             var progressCount = assetsFileList.Sum(x => x.m_Objects.Count);
             int i = 0;
             Progress.Reset();
+           
             foreach (var assetsFile in assetsFileList)
             {
+                
                 foreach (var external in assetsFile.m_Externals)
                 {
                     if (!assetsFileListHash.Contains(external.fileName))
@@ -863,13 +869,14 @@ namespace AssetStudio
                             ClassIDType.SpriteAtlas when ClassIDType.SpriteAtlas.CanParse() => new SpriteAtlas(objectReader),
                             ClassIDType.TextAsset when ClassIDType.TextAsset.CanParse() => new TextAsset(objectReader),
                             ClassIDType.Texture2D when ClassIDType.Texture2D.CanParse() => new Texture2D(objectReader),
-                            //ClassIDType.Texture2DArray when ClassIDType.Texture2DArray.CanParse() => new Texture2DArray(objectReader),
+                            ClassIDType.Texture2DArray when ClassIDType.Texture2D.CanParse() => new Texture2DArray(objectReader),
                             ClassIDType.Transform when ClassIDType.Transform.CanParse() => new Transform(objectReader),
                             ClassIDType.VideoClip when ClassIDType.VideoClip.CanParse() => new VideoClip(objectReader),
                             ClassIDType.ResourceManager when ClassIDType.ResourceManager.CanParse() => new ResourceManager(objectReader),
                             _ => new Object(objectReader),
                         };
                         assetsFile.AddObject(obj);
+
                     }
                     catch (Exception e)
                     {
@@ -900,6 +907,17 @@ namespace AssetStudio
             {
                 foreach (var obj in assetsFile.Objects)
                 {
+
+                    if (obj is AssetBundle sceneAssetBundle)
+                    {
+                        if (sceneAssetBundle.m_SceneHashes != null && sceneAssetBundle.m_SceneHashes.Count > 0)
+                        {
+                            foreach (var entry in sceneAssetBundle.m_SceneHashes)
+                            {
+                                sceneHashes.Add(new KeyValuePair<string, string>(entry.Key, entry.Value));
+                            }
+                        }
+                    }
                     if (tokenSource.IsCancellationRequested)
                     {
                         Logger.Info("Processing assets has been cancelled !!");

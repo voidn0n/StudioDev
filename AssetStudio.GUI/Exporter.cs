@@ -40,7 +40,7 @@ namespace AssetStudio.GUI
                 return true;
             }
         }
-        /*public static bool ExportTexture2DArray(AssetItem item, string exportPath)
+        public static bool ExportTexture2DArray(AssetItem item, string exportPath)
         {
             var m_Texture2DArray = (Texture2DArray)item.Asset;
             var count = 0;
@@ -57,7 +57,7 @@ namespace AssetStudio.GUI
                 }
             }
             return count > 0;
-        }*/
+        }
         public static bool ExportAudioClip(AssetItem item, string exportPath)
         {
             var m_AudioClip = (AudioClip)item.Asset;
@@ -531,7 +531,24 @@ namespace AssetStudio.GUI
                     ExportJSONFile(matItem, materialExportPath);
                 }
             }
-            exportPath = exportPath + FixFileName(gameObject.m_Name) + ".fbx";
+            
+            if (gameObject.m_Name == "_ArtNode")// && options.game.Type.isGirlsFrontline())
+            {
+                Logger.Info(gameObject.m_Name);
+                var fileList = gameObject.assetsFile.assetsManager.assetsFileList;
+                var GOCab = gameObject.assetsFile.fileName;
+                foreach (var entry in gameObject.assetsFile.assetsManager.sceneHashes)
+                {
+                    if (entry.Value == GOCab)
+                    {
+                        exportPath = exportPath + entry.Key.Split("/").Last().Split(".unity").First() + ".fbx";
+                    }
+                }
+            }
+            else
+            {
+                exportPath = exportPath + FixFileName(gameObject.m_Name) + ".fbx";
+            }
             ExportFbx(convert, exportPath);
             return true;
         }
@@ -608,11 +625,13 @@ namespace AssetStudio.GUI
             {
                 case ClassIDType.GameObject:
                     return ExportGameObject(item, exportPath);
-                case ClassIDType.Texture2DArrayImage:
+                
                 case ClassIDType.Texture2D:
                     return ExportTexture2D(item, exportPath);
-                /*case ClassIDType.Texture2DArray:
-                    return ExportTexture2DArray(item, exportPath);*/
+                case ClassIDType.Texture2DArrayImage:
+                    return ExportTexture2D(item, exportPath);
+                case ClassIDType.Texture2DArray:
+                    return ExportTexture2DArray(item, exportPath);
                 case ClassIDType.AudioClip:
                     return ExportAudioClip(item, exportPath);
                 case ClassIDType.Shader:

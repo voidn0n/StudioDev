@@ -626,7 +626,7 @@ namespace AssetStudio
                             case ClassIDType.Sprite when ClassIDType.Sprite.CanExport():
                             case ClassIDType.TextAsset when ClassIDType.TextAsset.CanExport():
                             case ClassIDType.Texture2D when ClassIDType.Texture2D.CanExport():
-                            //case ClassIDType.Texture2DArray when ClassIDType.Texture2DArray.CanExport():
+                            case ClassIDType.Texture2DArray when ClassIDType.Texture2DArray.CanExport():
                             case ClassIDType.VideoClip when ClassIDType.VideoClip.CanExport():
                             case ClassIDType.AudioClip when ClassIDType.AudioClip.CanExport():
                             case ClassIDType.AnimationClip when ClassIDType.AnimationClip.CanExport():

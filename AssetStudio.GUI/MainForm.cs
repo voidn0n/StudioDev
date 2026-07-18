@@ -968,9 +968,9 @@ namespace AssetStudio.GUI
                         //PreviewTexture2D(assetItem, assetItem.Asset as Texture2D);
                         PreviewTexture2D(assetItem, m_Texture2D);
                         break;
-                   /* case Texture2DArray m_Texture2DArray:
-                        PreviewTexture2DArray(assetItem, m_Texture2DArray);
-                        break;*/
+                    /* case Texture2DArray m_Texture2DArray:
+                         PreviewTexture2DArray(assetItem, m_Texture2DArray);
+                         break;*/
                     case AudioClip m_AudioClip:
                         PreviewAudioClip(assetItem, m_AudioClip);
                         break;

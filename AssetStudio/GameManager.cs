@@ -264,6 +264,7 @@ namespace AssetStudio
         public static bool isLATALE(this GameType type) => type == GameType.LATALE;
         public static bool isDawnOfKingdom(this GameType type) => type == GameType.DawnOfKingdom;
         public static bool IsGOZ(this GameType type) => type == GameType.GOZ;
+        public static bool isGirlsFrontline(this GameType type) => type == GameType.GirlsFrontline;
 
         public static bool IsGIGroup(this GameType type) => type switch
         {

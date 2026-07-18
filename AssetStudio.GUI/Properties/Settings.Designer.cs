@@ -46,20 +46,43 @@ namespace AssetStudio.GUI.Properties {
                 this["partialLoad"] = value;
             }
         }
-                [global::System.Configuration.UserScopedSettingAttribute()]
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool onDemand
-        {
-            get
-            {
-                return ((bool)(this["onDemand"]));
+        public bool skipBuildingTree {
+            get {
+                return ((bool)(this["skipBuildingTree"]));
             }
-            set
-            {
-                this["onDemand"] = value;
+            set {
+                this["skipBuildingTree"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool meshLazyLoad {
+            get {
+                return ((bool)(this["meshLazyLoad"]));
+            }
+            set {
+                this["meshLazyLoad"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool forceLoadBundle {
+            get {
+                return ((bool)(this["forceLoadBundle"]));
+            }
+            set {
+                this["forceLoadBundle"] = value;
+            }
+        }
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -314,18 +337,6 @@ namespace AssetStudio.GUI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("30")]
-        public int selectedGame {
-            get {
-                return ((int)(this["selectedGame"]));
-            }
-            set {
-                this["selectedGame"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool enableResolveDependencies {
             get {
@@ -371,34 +382,7 @@ namespace AssetStudio.GUI.Properties {
                 this["skipContainer"] = value;
             }
         }
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool skipBuildingTree
-        {
-            get
-            {
-                return ((bool)(this["skipBuildingTree"]));
-            }
-            set
-            {
-                this["skipBuildingTree"] = value;
-            }
-        }
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool meshLazyLoad
-        {
-            get
-            {
-                return ((bool)(this["meshLazyLoad"]));
-            }
-            set
-            {
-                this["meshLazyLoad"] = value;
-            }
-        }
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -525,15 +509,14 @@ namespace AssetStudio.GUI.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool forceLoadBundle {
+        public bool forceLoadBundle1 {
             get {
-                return ((bool)(this["forceLoadBundle"]));
+                return ((bool)(this["forceLoadBundle1"]));
             }
             set {
-                this["forceLoadBundle"] = value;
+                this["forceLoadBundle1"] = value;
             }
         }
-
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
@@ -574,7 +557,7 @@ namespace AssetStudio.GUI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"{""Animation"":{""Item1"":true,""Item2"":false},""AnimationClip"":{""Item1"":true,""Item2"":true},""Animator"":{""Item1"":true,""Item2"":true},""AnimatorController"":{""Item1"":true,""Item2"":false},""AnimatorOverrideController"":{""Item1"":true,""Item2"":false},""AssetBundle"":{""Item1"":true,""Item2"":false},""AudioClip"":{""Item1"":true,""Item2"":true},""Avatar"":{""Item1"":true,""Item2"":false},""Font"":{""Item1"":true,""Item2"":true},""GameObject"":{""Item1"":true,""Item2"":true},""IndexObject"":{""Item1"":true,""Item2"":false},""Material"":{""Item1"":true,""Item2"":true},""Mesh"":{""Item1"":true,""Item2"":true},""MeshFilter"":{""Item1"":true,""Item2"":false},""MeshRenderer"":{""Item1"":true,""Item2"":false},""MiHoYoBinData"":{""Item1"":true,""Item2"":true},""MonoBehaviour"":{""Item1"":true,""Item2"":true},""MonoScript"":{""Item1"":true,""Item2"":true},""MovieTexture"":{""Item1"":true,""Item2"":true},""PlayerSettings"":{""Item1"":true,""Item2"":false},""RectTransform"":{""Item1"":true,""Item2"":false},""Shader"":{""Item1"":true,""Item2"":true},""SkinnedMeshRenderer"":{""Item1"":true,""Item2"":false},""Sprite"":{""Item1"":true,""Item2"":true},""SpriteAtlas"":{""Item1"":true,""Item2"":false},""TextAsset"":{""Item1"":true,""Item2"":true},""Texture2D"":{""Item1"":true,""Item2"":true},""Texture2DArray"":{""Item1"":true,""Item2"":true},""Transform"":{""Item1"":true,""Item2"":false},""VideoClip"":{""Item1"":true,""Item2"":true},""ResourceManager"":{""Item1"":true,""Item2"":false}}")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"{""Animation"":{""Item1"":true,""Item2"":false},""AnimationClip"":{""Item1"":true,""Item2"":true},""Animator"":{""Item1"":true,""Item2"":true},""AnimatorController"":{""Item1"":true,""Item2"":false},""AnimatorOverrideController"":{""Item1"":true,""Item2"":false},""AssetBundle"":{""Item1"":true,""Item2"":false},""AudioClip"":{""Item1"":true,""Item2"":true},""Avatar"":{""Item1"":true,""Item2"":false},""Font"":{""Item1"":true,""Item2"":true},""GameObject"":{""Item1"":true,""Item2"":true},""IndexObject"":{""Item1"":true,""Item2"":false},""Material"":{""Item1"":true,""Item2"":true},""Mesh"":{""Item1"":true,""Item2"":true},""MeshFilter"":{""Item1"":true,""Item2"":false},""MeshRenderer"":{""Item1"":true,""Item2"":false},""MiHoYoBinData"":{""Item1"":true,""Item2"":true},""MonoBehaviour"":{""Item1"":true,""Item2"":true},""MonoScript"":{""Item1"":true,""Item2"":true},""MovieTexture"":{""Item1"":true,""Item2"":true},""PlayerSettings"":{""Item1"":true,""Item2"":false},""RectTransform"":{""Item1"":true,""Item2"":false},""Shader"":{""Item1"":true,""Item2"":true},""SkinnedMeshRenderer"":{""Item1"":true,""Item2"":false},""Sprite"":{""Item1"":true,""Item2"":true},""SpriteAtlas"":{""Item1"":true,""Item2"":false},""TextAsset"":{""Item1"":true,""Item2"":true},""Texture2D"":{""Item1"":true,""Item2"":true},""Texture2DArray"":{""Item1"":true,""Item2"":true}, ""Transform"":{""Item1"":true,""Item2"":false},""VideoClip"":{""Item1"":true,""Item2"":true},""ResourceManager"":{""Item1"":true,""Item2"":false}}")]
         public string types {
             get {
                 return ((string)(this["types"]));
@@ -583,6 +566,7 @@ namespace AssetStudio.GUI.Properties {
                 this["types"] = value;
             }
         }
+
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -593,6 +577,32 @@ namespace AssetStudio.GUI.Properties {
             }
             set {
                 this["exportMaterials"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("32")]
+        public int selectedGame {
+            get {
+                return ((int)(this["selectedGame"]));
+            }
+            set {
+                this["selectedGame"] = value;
+            }
+        }
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool onDemand
+        {
+            get
+            {
+                return ((bool)(this["onDemand"]));
+            }
+            set
+            {
+                this["onDemand"] = value;
             }
         }
     }

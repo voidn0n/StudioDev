@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace AssetStudio
 {
@@ -24,7 +25,15 @@ namespace AssetStudio
     {
         public List<PPtr<Object>> m_PreloadTable;
         public List<KeyValuePair<string, AssetInfo>> m_Container;
-
+        public AssetInfo m_MainAsset;
+        public uint m_RuntimeCompatibility;
+        public string m_AssetBundleName;
+        public List<string> m_Dependencies;
+        public bool m_IsStreamedSceneAssetBundle;
+        public int m_ExplicitDataLayout;
+        public int m_PathFlags;
+        public List<KeyValuePair<string, string>> m_SceneHashes;
+        
         public AssetBundle(ObjectReader reader) : base(reader)
         {
             var m_PreloadTableSize = reader.ReadInt32();
@@ -51,6 +60,33 @@ namespace AssetStudio
                     m_Container.Add(new KeyValuePair<string, AssetInfo>(reader.ReadAlignedString(), new AssetInfo(reader)));
                 }
             }
+            
+            if (reader.Game.Type.isGirlsFrontline()){
+                m_MainAsset = new AssetInfo(reader);
+                m_RuntimeCompatibility = reader.ReadUInt32();
+                m_AssetBundleName = reader.ReadAlignedString();
+                var m_DependenciesSize = reader.ReadInt32();
+                m_Dependencies = new List<string>();
+                for (int i = 0; i < m_DependenciesSize; i++)
+                {
+                    var data = reader.ReadAlignedString();
+                    m_Dependencies.Add(data);
+                }
+                reader.AlignStream();
+                m_IsStreamedSceneAssetBundle = reader.ReadBoolean();
+                reader.AlignStream();
+                m_ExplicitDataLayout = reader.ReadInt32();
+                m_PathFlags = reader.ReadInt32();
+                var m_SceneHashesSize = reader.ReadInt32();
+                m_SceneHashes = new List<KeyValuePair<string, string>>();
+                for (int i = 0; i < m_SceneHashesSize; i++)
+                {
+                    var first = reader.ReadAlignedString();
+                    var second = reader.ReadAlignedString();
+                    m_SceneHashes.Add(new KeyValuePair<string, string>(first, second));
+                }
+            }
+
         }
     }
 }

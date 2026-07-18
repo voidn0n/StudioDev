@@ -5,7 +5,7 @@
         public string m_Name;
 
         public override string Name => m_Name;
-
+        protected NamedObject() { }
         protected NamedObject(ObjectReader reader) : base(reader)
         {
             m_Name = reader.ReadAlignedString();
