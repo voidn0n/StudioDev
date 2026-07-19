@@ -532,7 +532,7 @@ namespace AssetStudio.GUI
                 }
             }
             
-            if (gameObject.m_Name == "_ArtNode")// && options.game.Type.isGirlsFrontline())
+            /*if (gameObject.m_Name == "_ArtNode")// && options.game.Type.isGirlsFrontline())
             {
                 Logger.Info(gameObject.m_Name);
                 var fileList = gameObject.assetsFile.assetsManager.assetsFileList;
@@ -544,11 +544,10 @@ namespace AssetStudio.GUI
                         exportPath = exportPath + entry.Key.Split("/").Last().Split(".unity").First() + ".fbx";
                     }
                 }
-            }
-            else
-            {
+            }*/
+            
                 exportPath = exportPath + FixFileName(gameObject.m_Name) + ".fbx";
-            }
+            
             ExportFbx(convert, exportPath);
             return true;
         }

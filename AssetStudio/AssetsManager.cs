@@ -910,6 +910,10 @@ namespace AssetStudio
 
                     if (obj is AssetBundle sceneAssetBundle)
                     {
+                        /*if (sceneAssetBundle.m_Container != null && sceneAssetBundle.m_Container.Count > 0)
+                        {
+
+                        }*/
                         if (sceneAssetBundle.m_SceneHashes != null && sceneAssetBundle.m_SceneHashes.Count > 0)
                         {
                             foreach (var entry in sceneAssetBundle.m_SceneHashes)
@@ -925,7 +929,18 @@ namespace AssetStudio
                     }
                     if (obj is GameObject m_GameObject)
                     {
-
+                        if (m_GameObject.m_Name == "_ArtNode")
+                        {
+                            var fileList = m_GameObject.assetsFile.assetsManager.assetsFileList;
+                            var GOCab = m_GameObject.assetsFile.fileName;
+                            foreach (var entry in m_GameObject.assetsFile.assetsManager.sceneHashes)
+                            {
+                                if (entry.Value == GOCab)
+                                {
+                                    m_GameObject.m_Name = entry.Key.Split("/").Last().Split(".unity").First() + "_ArtNode";
+                                }
+                            }
+                        }
                         Logger.Verbose($"GameObject with {m_GameObject.m_PathID} in file {m_GameObject.assetsFile.fileName} has {m_GameObject.m_Components.Count} components, Attempting to fetch them...");
                         foreach (var pptr in m_GameObject.m_Components)
                         {
