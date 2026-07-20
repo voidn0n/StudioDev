@@ -25,7 +25,7 @@ namespace AssetStudio
         public List<SerializedFile> assetsFileList = new List<SerializedFile>();
 
         public List<KeyValuePair<string, string>> sceneHashes = new List<KeyValuePair<string, string>>();
-
+        
         //public List<AssetBundle> sceneAssetBundles = new List<AssetBundle>();
 
         internal Dictionary<string, int> assetsFileIndexCache = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -39,6 +39,7 @@ namespace AssetStudio
         public static bool meshLazyLoad;
         Dictionary<string, string[]> searchRootFileCache = new();
         private static string loadFolder;
+        List<string> possibleEnviro = new List<string> { "_ArtNode", "_Environment", "_Terrain" };
 
         public Dictionary<Object, List<long>> PathIDsByObjectCache { get; set; }
         public Dictionary<long, List<long>> PathIdToPptrs { get; set; } = new();
@@ -903,6 +904,7 @@ namespace AssetStudio
             {
                 Logger.Info("Process Assets...");
             }
+            
             foreach (var assetsFile in assetsFileList)
             {
                 foreach (var obj in assetsFile.Objects)
@@ -929,15 +931,21 @@ namespace AssetStudio
                     }
                     if (obj is GameObject m_GameObject)
                     {
-                        if (m_GameObject.m_Name == "_ArtNode")
+                        if (m_GameObject.reader.Game.Type.isGirlsFrontline())
                         {
-                            var fileList = m_GameObject.assetsFile.assetsManager.assetsFileList;
-                            var GOCab = m_GameObject.assetsFile.fileName;
-                            foreach (var entry in m_GameObject.assetsFile.assetsManager.sceneHashes)
+                            foreach (var name in possibleEnviro)
                             {
-                                if (entry.Value == GOCab)
+                                if (m_GameObject.m_Name.Contains(name) && !m_GameObject.m_Name.Contains("_EnviroHelp"))
                                 {
-                                    m_GameObject.m_Name = entry.Key.Split("/").Last().Split(".unity").First() + "_ArtNode";
+                                    var fileList = m_GameObject.assetsFile.assetsManager.assetsFileList;
+                                    var GOCab = m_GameObject.assetsFile.fileName;
+                                    foreach (var entry in m_GameObject.assetsFile.assetsManager.sceneHashes)
+                                    {
+                                        if (entry.Value == GOCab)
+                                        {
+                                            m_GameObject.m_Name = entry.Key.Split("/").Last().Split(".unity").First() + m_GameObject.m_Name + "_EnviroHelp";
+                                        }
+                                    }
                                 }
                             }
                         }
