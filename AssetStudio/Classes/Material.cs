@@ -72,6 +72,7 @@ namespace AssetStudio
     public sealed class Material : NamedObject
     {
         public PPtr<Shader> m_Shader;
+        public string m_ShaderKeywords;
         public UnityPropertySheet m_SavedProperties;
 
         public Material(ObjectReader reader) : base(reader)
@@ -80,7 +81,7 @@ namespace AssetStudio
 
             if (version[0] == 4 && version[1] >= 1) //4.x
             {
-                var m_ShaderKeywords = reader.ReadStringArray();
+                m_ShaderKeywords = reader.ReadStringArray().ToString();
             }
 
             if (version[0] > 2021 || (version[0] == 2021 && version[1] >= 3)) //2021.3 and up
@@ -90,7 +91,7 @@ namespace AssetStudio
             }
             else if (version[0] >= 5) //5.0 ~ 2021.2
             {
-                var m_ShaderKeywords = reader.ReadAlignedString();
+                m_ShaderKeywords = reader.ReadAlignedString();
             }
 
             if (version[0] >= 5) //5.0 and up
