@@ -101,6 +101,7 @@ namespace AssetStudio.GUI
                             
                         }
                     }
+                    assetsManager.Clear();
                     Logger.Info("loading extra " + extraFiles.Count.ToString() +  "files");
                     foreach (var entry in ResourceMap.GetEntries())
                     {

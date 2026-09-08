@@ -876,9 +876,9 @@ namespace AssetStudio
                             ClassIDType.ResourceManager when ClassIDType.ResourceManager.CanParse() => new ResourceManager(objectReader),
                             _ => new Object(objectReader),
                         };
-
-                        assetsFile.AddObject(obj);
-
+                        
+                            assetsFile.AddObject(obj);
+                        
                     }
                     catch (Exception e)
                     {
