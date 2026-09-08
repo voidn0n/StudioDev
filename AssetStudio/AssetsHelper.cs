@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -211,9 +212,11 @@ namespace AssetStudio
         }
         public static string[] ProcessGFLCatalog(string[] files)
         {
-            if (File.Exists("meshres_hashmap.json") && loadCatalog)
+            var meshrespath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "meshres_hashmap.json");
+            if (File.Exists(meshrespath) && loadCatalog)
             {
-                var json = File.ReadAllText("meshres_hashmap.json");
+                Logger.Info("meshres loaded");
+                var json = File.ReadAllText(meshrespath);
                 GFLHashMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
             }
             return files;

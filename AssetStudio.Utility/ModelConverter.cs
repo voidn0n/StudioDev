@@ -181,7 +181,7 @@ namespace AssetStudio
                                 string resPath = (string)entry["MeshResPath"];
 
                                 additionalMeshes[transformPath] = resPath;
-                                if (AssetsHelper.loadCatalog)// && resPath.Contains("face"))
+                                if (AssetsHelper.loadCatalog)
                                 {
                                     string resPath2 = AssetsHelper.GetGFLContainer((string)entry["MeshResPath"]);
                                     additionalMeshes2[transformPath] = resPath2;

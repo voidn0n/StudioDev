@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
+using System.DirectoryServices.ActiveDirectory;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -72,17 +75,53 @@ namespace AssetStudio.GUI
         {
             var files = assetDataGridView.SelectedRows.Cast<DataGridViewRow>().Select(x => _assetEntries[x.Index]?.Source).ToHashSet();
             var missingFiles = files.Where(x => !File.Exists(x));
+            var extraFiles = new List<string>();
             foreach (var file in missingFiles)
             {
                 Logger.Warning($"Unable to find file {file}, skipping...");
                 files.Remove(file);
             }
             if (files.Count != 0 && !files.Any(string.IsNullOrEmpty))
+            
             {
+                assetsManager.Clear();
+                if (Studio.Game.Type.isGirlsFrontline() && AssetsHelper.loadCatalog)
+                {
+                    extraFiles.Clear();
+                    var entries = assetDataGridView.SelectedRows.Cast<DataGridViewRow>().Select(x => _assetEntries[x.Index]).ToArray();
+                    assetsManager.Game = Studio.Game;
+                    var filesToCheck = new List<string>(entries.Select(x => x.Source).ToHashSet());
+                   
+                    foreach (var file in filesToCheck)
+                    {
+                        assetsManager.LoadFiles(file);
+                        if (assetsManager.assetsFileList.Count > 0)
+                        {
+                            BuildLessAssetData(extraFiles, entries);
+                            
+                        }
+                    }
+                    Logger.Info("loading extra " + extraFiles.Count.ToString() +  "files");
+                    foreach (var entry in ResourceMap.GetEntries())
+                    {
+                        if (entry.Type == ClassIDType.Mesh)
+                        {
+                            foreach (var f in extraFiles)
+                            {
+                                if (f == entry.Container)
+                                {
+                                    files.Add(entry.Source);
+                                }
+
+                            }
+                        }
+                    }
+                }
                 Logger.Info("Loading...");
                 _parent.Invoke(() => _parent.LoadPaths(files.ToArray()));
             }
         }
+
         private async void exportSelected_Click(object sender, EventArgs e)
         {
             var saveFolderDialog = new OpenFolderDialog();
@@ -108,7 +147,6 @@ namespace AssetStudio.GUI
                         if (assetsManager.assetsFileList.Count > 0)
                         {
                             BuildAssetData(toExportAssets, entries);
-                            //Todo add toggle for export type in assetbrowser
                             await ExportAssets(saveFolderDialog.Folder, toExportAssets, ExportType.Convert, i == files.Count - 1);
                         }
                         toExportAssets.Clear();
@@ -163,6 +201,65 @@ namespace AssetStudio.GUI
             exportableAssets.Clear();
             exportableAssets.AddRange(matches);
         }
+        private void BuildLessAssetData(List<string> extraFiles, AssetEntry[] entries)
+        {
+            var objectAssetItemDic = new Dictionary<Object, AssetItem>();
+            var containers = new List<(PPtr<Object>, string)>();
+            foreach ((var pptr, var container) in containers)
+            {
+                if (pptr.TryGet(out var obj))
+                {
+                    var item = objectAssetItemDic[obj];
+                    item.Container = container;
+                }
+            }
+            containers.Clear();
+            foreach (var assetsFile in assetsManager.assetsFileList)
+            {
+                foreach (var asset in assetsFile.Objects)
+                {
+                    ProcessLessAssetData(asset, extraFiles, objectAssetItemDic, containers);
+                }
+            }
+            
+
+           
+        }
+        private void ProcessLessAssetData(Object asset, List<string> extraFiles, Dictionary<Object, AssetItem> objectAssetItemDic, List<(PPtr<Object>, string)> containers)
+        {
+            var assetItem = new AssetItem(asset);
+            objectAssetItemDic.Add(asset, assetItem);
+            
+            switch (asset)
+            {
+                case GameObject m_GameObject:
+                    if (m_GameObject.m_Components.Count > 0)
+                    {
+                        foreach (var i in m_GameObject.m_Components)
+                        {
+                            if (i.TryGet<MonoBehaviour>(out var comp))
+                            {
+                                var type = comp.ToType();
+                                var script = type["m_Script"] as OrderedDictionary;
+                                if ( comp.Name == "RoleMeshRes" || comp.Name == "WeaponMeshRes")
+                                {
+                                    var list = type["MeshResList"] as List<object>;
+                                    foreach (OrderedDictionary entry in list)
+                                    {
+                                        string resPath = AssetsHelper.GetGFLContainer((string)entry["MeshResPath"]);
+                                        if (resPath != null)
+                                        {
+                                            extraFiles.Add(resPath);
+                                           
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
         private void ProcessAssetData(Object asset, List<AssetItem> exportableAssets, Dictionary<Object, AssetItem> objectAssetItemDic, List<(PPtr<Object>, string)> mihoyoBinDataNames, List<(PPtr<Object>, string)> containers)
         {
             var assetItem = new AssetItem(asset);
@@ -172,6 +269,7 @@ namespace AssetStudio.GUI
             {
                 case GameObject m_GameObject:
                     exportable = ClassIDType.GameObject.CanExport() && m_GameObject.HasModel();
+
                     break;
                 case Texture2D m_Texture2D:
                     if (!string.IsNullOrEmpty(m_Texture2D.m_StreamData?.path))

@@ -724,6 +724,13 @@ namespace AssetStudio.GUI
                                 {
                                     exportedCount++;
                                 }
+                                if (asset.Type == ClassIDType.AssetBundle && Game.Type.isGirlsFrontline())
+                                {
+                                    if (ExportJSONFile(asset, exportPath))
+                                    {
+                                        //exportedCount++;
+                                    }
+                                }
                                 break;
                             case ExportType.JSON:
                                 if (ExportJSONFile(asset, exportPath))
