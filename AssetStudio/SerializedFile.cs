@@ -469,7 +469,7 @@ namespace AssetStudio
             Logger.Verbose($"Caching object with {obj.m_PathID} in file {fileName}...");
 
             Objects.Add(obj);
-            ObjectsDic.Add(obj.m_PathID, obj);
+            ObjectsDic.TryAdd(obj.m_PathID, obj);
 
         }
 

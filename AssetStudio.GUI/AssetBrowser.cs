@@ -92,15 +92,14 @@ namespace AssetStudio.GUI
                     assetsManager.Game = Studio.Game;
                     var filesToCheck = new List<string>(entries.Select(x => x.Source).ToHashSet());
                    
-                    foreach (var file in filesToCheck)
-                    {
-                        assetsManager.LoadFiles(file);
+                    //foreach (var file in filesToCheck)
+                    
+                        assetsManager.LoadFiles(filesToCheck.ToArray());
                         if (assetsManager.assetsFileList.Count > 0)
                         {
-                            BuildLessAssetData(extraFiles, entries);
-                            
+                            BuildLessAssetData(extraFiles, entries);                            
                         }
-                    }
+                    
                     assetsManager.Clear();
                     Logger.Info("loading extra " + extraFiles.Count.ToString() +  "files");
                     foreach (var entry in ResourceMap.GetEntries())
@@ -113,7 +112,7 @@ namespace AssetStudio.GUI
                                 {
                                     files.Add(entry.Source);
                                 }
-
+                            
                             }
                         }
                     }
