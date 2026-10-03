@@ -24,7 +24,9 @@ Note: Requires Internet connection to fetch asset_index jsons.
 _____________________________________________________________________________________________________________________________
 How to use:
 
-Check the tutorial [here](https://gist.github.com/Modder4869/0f5371f8879607eb95b8e63badca227e) (Thanks to Modder4869 for the tutorial)
+Check the general studio tutorial [here](https://gist.github.com/Modder4869/0f5371f8879607eb95b8e63badca227e) (Thanks to Modder4869 for the tutorial)
+
+Guide for this version specifically [here](https://gist.github.com/voidn0n/b7e1b7cf7f61853a9896b4914a1b6b23)
 _____________________________________________________________________________________________________________________________
 CLI Version:
 ```
